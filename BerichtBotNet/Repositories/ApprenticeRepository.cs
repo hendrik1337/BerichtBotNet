@@ -24,6 +24,18 @@ public class ApprenticeRepository
         return _context.Apprentices.FirstOrDefault(a => a.Id == apprenticeId);
     }
 
+    public Apprentice? GetApprenticeByDiscordId(string discordId)
+    {
+        return _context.Apprentices.FirstOrDefault(a => a.DiscordUserId == discordId);
+    }
+
+    public List<Apprentice> GetApprenticesInSameGroupByGroupId(int groupId)
+    {
+        return (from apprentices in _context.Apprentices
+            where apprentices.Group.Id == groupId
+            select apprentices).ToList();
+    }
+
     public void UpdateApprentice(Apprentice apprentice)
     {
         _context.Apprentices.Update(apprentice);

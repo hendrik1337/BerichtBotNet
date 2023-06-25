@@ -27,12 +27,12 @@ public class GroupCommands
         switch (modal.Data.CustomId)
         {
             case "addApprenticeMenu":
-                await addGroup(modal);
+                await AddGroup(modal);
                 break;
         }
     }
 
-    private static async Task addGroup(SocketModal modal)
+    private static async Task AddGroup(SocketModal modal)
     {
         List<SocketMessageComponentData> components =
             modal.Data.Components.ToList();

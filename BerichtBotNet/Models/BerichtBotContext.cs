@@ -12,7 +12,9 @@ public class BerichtBotContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder contextOptionsBuilder)
     {
         // Connection String to Connect to the Database
-        contextOptionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"));
+        contextOptionsBuilder
+            .UseLazyLoadingProxies()
+            .UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

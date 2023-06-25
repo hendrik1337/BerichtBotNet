@@ -25,6 +25,8 @@ class BerichtBotNet
         _client.Ready += Client_Ready;
 
         _client.ModalSubmitted += ModalSubmittedHandler;
+        
+        _client.ButtonExecuted += MyButtonHandler;
 
         var token = Environment.GetEnvironmentVariable("DiscordToken");
 
@@ -104,6 +106,16 @@ class BerichtBotNet
             ApprenticeCommands.ApprenticeModalHandler(modal);
         }
     }
+    
+    public async Task MyButtonHandler(SocketMessageComponent component)
+    {
+        // We can now check for our custom id
+        if (component.Data.CustomId.Contains("Apprentice"))
+        {
+            ApprenticeCommands.ApprenticeButtonHandler(component);
+        }
+    }
+
 
     private Task Log(LogMessage msg)
     {

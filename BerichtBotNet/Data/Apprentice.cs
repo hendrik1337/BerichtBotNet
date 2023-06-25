@@ -8,6 +8,6 @@ public class Apprentice
     public int Id { get; set; }
     public string Name { get; set; } = null!;
     public string DiscordUserId { get; set; } = null!;
-    public Group? Group { get; set; }
+    public virtual Group Group { get; set; } = null!;
     public int SkipCount { get; set; }
 }
