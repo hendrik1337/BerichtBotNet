@@ -30,8 +30,9 @@ namespace BerichtBotNet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DiscordUserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("DiscordUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int?>("GroupId")
                         .HasColumnType("integer");
@@ -58,8 +59,8 @@ namespace BerichtBotNet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DiscordGroupId")
-                        .HasColumnType("integer");
+                    b.Property<string>("DiscordGroupId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()

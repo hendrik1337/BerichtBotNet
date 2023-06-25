@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BerichtBotNet.Migrations
 {
     [DbContext(typeof(BerichtBotContext))]
-    [Migration("20230625072700_InitialCreate")]
+    [Migration("20230625130310_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,10 +33,11 @@ namespace BerichtBotNet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DiscordUserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("DiscordUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -61,8 +62,8 @@ namespace BerichtBotNet.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DiscordGroupId")
-                        .HasColumnType("integer");
+                    b.Property<string>("DiscordGroupId")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -101,9 +102,7 @@ namespace BerichtBotNet.Migrations
                 {
                     b.HasOne("BerichtBotNet.Data.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.Navigation("Group");
                 });
