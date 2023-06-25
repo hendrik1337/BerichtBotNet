@@ -19,7 +19,7 @@ public class LogRepository
         return log;
     }
 
-    public Log GetLog(int logId)
+    public Log? GetLog(int logId)
     {
         return _context.Logs.FirstOrDefault(l => l.Id == logId);
     }

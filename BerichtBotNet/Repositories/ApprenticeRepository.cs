@@ -19,7 +19,7 @@ public class ApprenticeRepository
         return apprentice;
     }
 
-    public Apprentice GetApprentice(int apprenticeId)
+    public Apprentice? GetApprentice(int apprenticeId)
     {
         return _context.Apprentices.FirstOrDefault(a => a.Id == apprenticeId);
     }

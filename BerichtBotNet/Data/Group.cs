@@ -7,5 +7,5 @@ public class Group
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
-    public int? DiscordGroupId { get; set; }
+    public string? DiscordGroupId { get; set; }
 }

@@ -19,9 +19,14 @@ public class GroupRepository
         return group;
     }
 
-    public Group GetGroup(int groupId)
+    public Group? GetGroup(int groupId)
     {
         return _context.Groups.FirstOrDefault(g => g.Id == groupId);
+    }
+    
+    public Group? GetGroupByName(string name)
+    {
+        return _context.Groups.FirstOrDefault(g => g.Name == name);
     }
 
     public void UpdateGroup(Group group)
