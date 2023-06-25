@@ -14,4 +14,11 @@ public class BerichtBotContext : DbContext
         // Connection String to Connect to the Database
         contextOptionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"));
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Apprentice>().HasIndex(u => u.DiscordUserId).IsUnique();
+    }
 }

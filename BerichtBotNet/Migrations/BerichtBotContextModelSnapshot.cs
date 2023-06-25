@@ -46,6 +46,9 @@ namespace BerichtBotNet.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DiscordUserId")
+                        .IsUnique();
+
                     b.HasIndex("GroupId");
 
                     b.ToTable("Apprentices");
