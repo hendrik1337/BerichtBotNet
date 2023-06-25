@@ -33,7 +33,7 @@ namespace BerichtBotNet.Migrations
                     b.Property<int>("DiscordUserId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -98,9 +98,7 @@ namespace BerichtBotNet.Migrations
                 {
                     b.HasOne("BerichtBotNet.Data.Group", "Group")
                         .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.Navigation("Group");
                 });
