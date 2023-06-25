@@ -44,6 +44,8 @@ public class ApprenticeCommands
 
 
         using BerichtBotContext context = new BerichtBotContext();
+
+        // Creates Group if it doesnt exist
         GroupRepository groupRepository = new GroupRepository(context);
         
         if (groupRepository.GetGroupByName(group) == null)
@@ -53,6 +55,7 @@ public class ApprenticeCommands
         }
 
 
+        // Creates Apprentice
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
         Apprentice apprentice = new Apprentice
         {
@@ -64,14 +67,13 @@ public class ApprenticeCommands
 
         apprenticeRepository.CreateApprentice(apprentice);
         
-
+        
+        // Answer to User
         string answer = $"Azubi: {username} wurde hinzugefügt.";
-
         if (!groupExists)
         {
             answer += $" Die Gruppe {group} Existierte noch nicht und wurde erstellt.";
         }
-
         await modal.RespondAsync(answer);
     }
 
