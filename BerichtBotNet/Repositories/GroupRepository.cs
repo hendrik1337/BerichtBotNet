@@ -35,6 +35,18 @@ public class GroupRepository
         _context.SaveChanges();
     }
 
+    public bool CreateGroupIfNotExists(string group)
+    {
+        if (GetGroupByName(group) == null)
+        {
+            CreateGroup(new Group() { Name = group });
+            // returns false, because the group did not exist
+            return false;
+        }
+
+        return true;
+    }
+
     public void DeleteGroup(int groupId)
     {
         var group = _context.Groups.Find(groupId);

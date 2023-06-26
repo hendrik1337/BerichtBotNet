@@ -1,10 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using BerichtBotNet.Discord;
+using BerichtBotNet.Reminders;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
+using Quartz;
 
 namespace BerichtBotNet;
 
@@ -25,7 +29,7 @@ class BerichtBotNet
         _client.Ready += Client_Ready;
 
         _client.ModalSubmitted += ModalSubmittedHandler;
-        
+
         _client.ButtonExecuted += MyButtonHandler;
 
         var token = Environment.GetEnvironmentVariable("DiscordToken");
@@ -33,8 +37,40 @@ class BerichtBotNet
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
 
+        await LoadTaskScheduler();
+
         // Block this task until the program is closed.
-        await Task.Delay(-1);
+        // await Task.Delay(-1);
+    }
+
+    private static async Task LoadTaskScheduler()
+    {
+        // Load the Task Scheduler
+        var builder = Host.CreateDefaultBuilder()
+            .ConfigureServices((cxt, services) =>
+            {
+                services.AddQuartz(q => { q.UseMicrosoftDependencyInjectionJobFactory(); });
+                services.AddQuartzHostedService(opt => { opt.WaitForJobsToComplete = true; });
+            }).Build();
+
+        var schedulerFactory = builder.Services.GetRequiredService<ISchedulerFactory>();
+        var scheduler = await schedulerFactory.GetScheduler();
+
+        // Define the job and tie it to our ReminderTasks class
+        var job = JobBuilder.Create<ReminderTasks>()
+            .WithIdentity("myJob", "group1")
+            .Build();
+        
+        var trigger = TriggerBuilder.Create()
+            .WithIdentity("myTrigger", "group1")
+            .StartNow()
+            .WithSchedule(CronScheduleBuilder
+                .WeeklyOnDayAndHourAndMinute(DayOfWeek.Monday, 8, 30))
+            .Build();
+
+        await scheduler.ScheduleJob(job, trigger);
+        
+        await builder.RunAsync();
     }
 
     private async Task Client_Ready()
@@ -61,7 +97,7 @@ class BerichtBotNet
             var json = JsonConvert.SerializeObject(exception.ToString(), Formatting.Indented);
             Console.WriteLine(json);
         }
-        
+
         var globalGroupCommand = new SlashCommandBuilder()
             .WithName("gruppe")
             .WithDescription("Befehle um Gruppen zu verwalten")
@@ -106,7 +142,7 @@ class BerichtBotNet
             ApprenticeCommands.ApprenticeModalHandler(modal);
         }
     }
-    
+
     public async Task MyButtonHandler(SocketMessageComponent component)
     {
         // We can now check for our custom id

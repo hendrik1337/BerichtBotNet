@@ -25,8 +25,12 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
+      <PackageReference Include="Quartz" Version="3.6.3" />
+      <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.6.3" />
+      <PackageReference Include="Quartz.Extensions.Hosting" Version="3.6.3" />
     </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@ public class ApprenticeCommands
                 SendAddApprentice(command);
                 break;
             case "edit":
-                SendEditapprentice(command);
+                SendEditApprentice(command);
                 break;
             case "remove":
                 SendApprenticeRemoveConfirmation(command);
@@ -55,19 +55,13 @@ public class ApprenticeCommands
         string username = components.First(x => x.CustomId == "azubi_name").Value;
         string discordId = components.First(x => x.CustomId == "azubi_id").Value;
         string group = components.First(x => x.CustomId == "azubi_group").Value;
-        bool groupExists = true;
 
 
         using BerichtBotContext context = new BerichtBotContext();
 
         // Creates Group if it doesnt exist
         GroupRepository groupRepository = new GroupRepository(context);
-
-        if (groupRepository.GetGroupByName(group) == null)
-        {
-            groupRepository.CreateGroup(new Group() { Name = group });
-            groupExists = false;
-        }
+        bool groupExists = groupRepository.CreateGroupIfNotExists(group);
 
 
         // Creates Apprentice
@@ -109,12 +103,7 @@ public class ApprenticeCommands
 
         // Creates Group if it doesnt exist
         GroupRepository groupRepository = new GroupRepository(context);
-
-        if (groupRepository.GetGroupByName(group) == null)
-        {
-            groupRepository.CreateGroup(new Group() { Name = group });
-            groupExists = false;
-        }
+        groupExists = groupRepository.CreateGroupIfNotExists(group);
 
 
         // Creates Apprentice
@@ -139,7 +128,7 @@ public class ApprenticeCommands
         await modal.RespondAsync(answer);
     }
 
-    private static async void SendEditapprentice(SocketSlashCommand command)
+    private static async void SendEditApprentice(SocketSlashCommand command)
     {
         using BerichtBotContext context = new BerichtBotContext();
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
@@ -153,7 +142,7 @@ public class ApprenticeCommands
                 .AddTextInput("Name", "azubi_name", value: user.Name)
                 .AddTextInput("Discord Id", "azubi_id", value: user.DiscordUserId)
                 .AddTextInput("Gruppe", "azubi_group", value: user.Group?.Name)
-                .AddTextInput("Überspringen", "azubi_skip", value: user.SkipCount.ToString());
+                .AddTextInput("Überspringen", "azubi_skip", value: user.SkipCount.ToString(), placeholder: "Anzahl, die Azubi übersprungen werden soll. -1 für Unendlich");
 
             await command.RespondWithModalAsync(addApprenticeModal.Build());
         }
