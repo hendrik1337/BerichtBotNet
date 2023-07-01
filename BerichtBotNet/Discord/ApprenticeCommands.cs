@@ -13,7 +13,7 @@ public class ApprenticeCommands
         switch (command.Data.Options.First().Value)
         {
             case "add":
-                SendAddApprentice(command);
+                SendGroupSelector(command);
                 break;
             case "edit":
                 SendEditApprentice(command);
@@ -37,15 +37,20 @@ public class ApprenticeCommands
         }
     }
 
-    public static async void ApprenticeButtonHandler(SocketMessageComponent component)
+    public static async void ApprenticeMessageComponentHandler(SocketMessageComponent component)
     {
         switch (component.Data.CustomId)
         {
             case "deleteApprentice":
                 RemoveApprentice(component);
                 break;
+            case "groupSelectorApprentice":
+                GroupSelector(component);
+                break;
         }
     }
+    
+    
 
     private static async Task AddApprentice(SocketModal modal)
     {
@@ -58,10 +63,7 @@ public class ApprenticeCommands
 
 
         using BerichtBotContext context = new BerichtBotContext();
-
-        // Creates Group if it doesnt exist
         GroupRepository groupRepository = new GroupRepository(context);
-        bool groupExists = groupRepository.CreateGroupIfNotExists(group);
 
 
         // Creates Apprentice
@@ -70,7 +72,7 @@ public class ApprenticeCommands
         {
             Name = username,
             DiscordUserId = discordId,
-            Group = groupRepository.GetGroupByName(group),
+            Group = groupRepository.GetGroup(int.Parse(group)),
             SkipCount = 0
         };
 
@@ -79,10 +81,6 @@ public class ApprenticeCommands
 
         // Answer to User
         string answer = $"Azubi: {username} wurde hinzugefügt.";
-        if (!groupExists)
-        {
-            answer += $" Die Gruppe {group} Existierte noch nicht und wurde erstellt.";
-        }
 
         await modal.RespondAsync(answer);
     }
@@ -103,12 +101,22 @@ public class ApprenticeCommands
 
         // Creates Group if it doesnt exist
         GroupRepository groupRepository = new GroupRepository(context);
-        groupExists = groupRepository.CreateGroupIfNotExists(group);
+        if (groupRepository.GetGroupByName(group) == null)
+        {
+            await modal.RespondAsync("Gewählte Gruppe konnte nicht gefunden werden.");
+            return;
+        }
 
 
         // Creates Apprentice
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
         Apprentice apprentice = apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
+
+        if (apprentice == null)
+        {
+            await modal.RespondAsync("Benutzer konnte nicht gefunden werden.");
+            return;
+        }
 
         apprentice.Name = username;
         apprentice.DiscordUserId = discordId;
@@ -146,18 +154,98 @@ public class ApprenticeCommands
 
             await command.RespondWithModalAsync(addApprenticeModal.Build());
         }
+        else
+        {
+            await command.RespondAsync("Benutzer konnte nicht gefunden werden.");
+        }
     }
 
+    // Add Apprentice from a SlashCommand
     private static async void SendAddApprentice(SocketSlashCommand command)
     {
         var addApprenticeModal = new ModalBuilder()
             .WithTitle("Azubi Hinzufügen")
             .WithCustomId("addApprenticeMenu")
             .AddTextInput("Name", "azubi_name", value: command.User.Username)
-            .AddTextInput("Discord Id", "azubi_id", value: command.User.Id.ToString())
-            .AddTextInput("Gruppe", "azubi_group", placeholder: "FI-22");
+            .AddTextInput("Discord Id", "azubi_id", value: command.User.Id.ToString());
 
         await command.RespondWithModalAsync(addApprenticeModal.Build());
+    }
+    
+    // Add Apprentice from a Modal
+    public static async void SendAddApprentice(SocketMessageComponent modal, string groupId)
+    {
+        var addApprenticeModal = new ModalBuilder()
+            .WithTitle("Azubi Hinzufügen")
+            .WithCustomId("addApprenticeMenu")
+            .AddTextInput("Name", "azubi_name", value: modal.User.Username)
+            .AddTextInput("Discord Id", "azubi_id", value: modal.User.Id.ToString())
+            .AddTextInput("Group Id, NICHT ÄNDERN", "azubi_group", value: groupId);
+
+        await modal.RespondWithModalAsync(addApprenticeModal.Build());
+    }
+
+    private static async void GroupSelector(SocketMessageComponent component)
+    {
+
+        if (component.Data.Values.First().Equals("new-group"))
+        {
+            GroupCommands.AddGroup(component);
+        }
+        else
+        {
+            SendAddApprentice(component, component.Data.Values.First());
+        }
+    }
+
+    private static async void SendGroupSelector(SocketSlashCommand command)
+    {
+        using BerichtBotContext context = new BerichtBotContext();
+        GroupRepository groupRepository = new GroupRepository(context);
+
+        List<Group>? groups = groupRepository.GetAllGroups();
+
+        var menuBuilder = new SelectMenuBuilder()
+            .WithPlaceholder("Wähle deine Gruppe aus")
+            .WithCustomId("groupSelectorApprentice");
+
+        foreach (var group in groups)
+        {
+            menuBuilder.AddOption(group.Name, group.Id.ToString());
+        }
+
+        menuBuilder.AddOption("Neue Gruppe", "new-group");
+
+
+        var builder = new ComponentBuilder()
+            .WithSelectMenu(menuBuilder);
+        await command.RespondAsync("Wähle deine Gruppe", components: builder.Build());
+    }
+    
+    public static async void SendGroupSelector(SocketModal modal)
+    {
+        using BerichtBotContext context = new BerichtBotContext();
+        GroupRepository groupRepository = new GroupRepository(context);
+
+        List<Group>? groups = groupRepository.GetAllGroups();
+
+        var menuBuilder = new SelectMenuBuilder()
+            .WithPlaceholder("Wähle deine Gruppe aus")
+            .WithCustomId("groupSelectorApprentice")
+            .WithMinValues(1)
+            .WithMaxValues(1);
+
+        foreach (var group in groups)
+        {
+            menuBuilder.AddOption(group.Name, group.Id.ToString());
+        }
+
+        menuBuilder.AddOption("Neue Gruppe", "new-group");
+
+
+        var builder = new ComponentBuilder()
+            .WithSelectMenu(menuBuilder);
+        await modal.RespondAsync("Gruppe wurde hinzugefügt\n\n\nWähle jetzt deine Gruppe", components: builder.Build());
     }
 
     private static async void SendApprenticeRemoveConfirmation(SocketSlashCommand command)

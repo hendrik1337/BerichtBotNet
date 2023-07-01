@@ -24,6 +24,11 @@ public class GroupRepository
         return _context.Groups.FirstOrDefault(g => g.Id == groupId);
     }
     
+    public List<Group>? GetAllGroups()
+    {
+        return _context.Groups.ToList();
+    }
+    
     public Group? GetGroupByName(string name)
     {
         return _context.Groups.FirstOrDefault(g => g.Name == name);

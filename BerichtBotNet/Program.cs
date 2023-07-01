@@ -1,7 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using BerichtBotNet.Discord;
+using BerichtBotNet.Helper;
+using BerichtBotNet.Models;
 using BerichtBotNet.Reminders;
+using BerichtBotNet.Repositories;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
@@ -20,6 +23,7 @@ class BerichtBotNet
 
     public async Task MainAsync()
     {
+
         _client = new DiscordSocketClient();
 
         _client.Log += Log;
@@ -30,7 +34,9 @@ class BerichtBotNet
 
         _client.ModalSubmitted += ModalSubmittedHandler;
 
-        _client.ButtonExecuted += MyButtonHandler;
+        _client.ButtonExecuted += MyMessageComponentHandler;
+        
+        _client.SelectMenuExecuted += MyMessageComponentHandler;
 
         var token = Environment.GetEnvironmentVariable("DiscordToken");
 
@@ -75,16 +81,15 @@ class BerichtBotNet
 
     private async Task Client_Ready()
     {
+        /*
         var globalAzubiCommand = new SlashCommandBuilder()
-            .WithName("azubi")
-            .WithDescription("Befehle um Azubis zu verwalten")
+            .WithName("wer")
+            .WithDescription("Gibt den Berichsheftschreiber zurück")
             .AddOption(new SlashCommandOptionBuilder()
-                .WithName("befehl")
-                .WithDescription("Welchen Befehl möchtest du ausführen?")
-                .WithRequired(true)
-                .AddChoice("hinzufügen", "add")
-                .AddChoice("bearbeiten", "edit")
-                .AddChoice("löschen", "remove")
+                .WithName("nummer")
+                .WithDescription("Welche Berichsheftnummer? (optional)")
+                .WithRequired(false)
+                .AddChoice("nummer", "number")
                 .WithType(ApplicationCommandOptionType.String)
             );
 
@@ -96,30 +101,7 @@ class BerichtBotNet
         {
             var json = JsonConvert.SerializeObject(exception.ToString(), Formatting.Indented);
             Console.WriteLine(json);
-        }
-
-        var globalGroupCommand = new SlashCommandBuilder()
-            .WithName("gruppe")
-            .WithDescription("Befehle um Gruppen zu verwalten")
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("befehl")
-                .WithDescription("Welchen Befehl möchtest du ausführen?")
-                .WithRequired(true)
-                .AddChoice("hinzufügen", "add")
-                .AddChoice("bearbeiten", "edit")
-                .AddChoice("löschen", "remove")
-                .WithType(ApplicationCommandOptionType.String)
-            );
-
-        try
-        {
-            await _client.Rest.CreateGlobalCommand(globalGroupCommand.Build());
-        }
-        catch (HttpException exception)
-        {
-            var json = JsonConvert.SerializeObject(exception.ToString(), Formatting.Indented);
-            Console.WriteLine(json);
-        }
+        }*/
     }
 
     private async Task SlashCommandHandler(SocketSlashCommand command)
@@ -132,6 +114,9 @@ class BerichtBotNet
             case "gruppe":
                 GroupCommands.GroupCommandHandler(command);
                 break;
+            case "wer":
+                BerichtsheftCommands.BerichtsheftCommandHandler(command);
+                break;
         }
     }
 
@@ -141,14 +126,18 @@ class BerichtBotNet
         {
             ApprenticeCommands.ApprenticeModalHandler(modal);
         }
-    }
 
-    public async Task MyButtonHandler(SocketMessageComponent component)
+        if (modal.Data.CustomId.Contains("GroupMenu"))
+        {
+            GroupCommands.GroupModalHandler(modal);
+        }
+    }
+    
+    public async Task MyMessageComponentHandler(SocketMessageComponent component)
     {
-        // We can now check for our custom id
         if (component.Data.CustomId.Contains("Apprentice"))
         {
-            ApprenticeCommands.ApprenticeButtonHandler(component);
+            ApprenticeCommands.ApprenticeMessageComponentHandler(component);
         }
     }
 

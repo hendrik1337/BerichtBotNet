@@ -3,6 +3,7 @@ using System;
 using BerichtBotNet.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BerichtBotNet.Migrations
 {
     [DbContext(typeof(BerichtBotContext))]
-    partial class BerichtBotContextModelSnapshot : ModelSnapshot
+    [Migration("20230701145009_Ausbildungsstart")]
+    partial class Ausbildungsstart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,6 +102,8 @@ namespace BerichtBotNet.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApprenticeId");
+
                     b.ToTable("Logs");
                 });
 
@@ -111,6 +116,17 @@ namespace BerichtBotNet.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("BerichtBotNet.Data.Log", b =>
+                {
+                    b.HasOne("BerichtBotNet.Data.Apprentice", "Apprentice")
+                        .WithMany()
+                        .HasForeignKey("ApprenticeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Apprentice");
                 });
 #pragma warning restore 612, 618
         }

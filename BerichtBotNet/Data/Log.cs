@@ -5,7 +5,8 @@
 public class Log
 {
     public int Id { get; set; }
-    public virtual Apprentice Apprentice { get; set; } = null!;
+    
+    public int ApprenticeId { get; set; }
     public int BerichtheftNummer { get; set; }
     public DateTime Timestamp { get; set; }
 }
