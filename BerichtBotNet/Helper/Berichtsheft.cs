@@ -26,6 +26,21 @@ public class Berichtsheft
         throw new ApprenticeNotFoundException();
     }
 
+    private static List<Apprentice> GetNonSkippedApprentices(List<Apprentice> apprentices)
+    {
+        List<Apprentice> filteredApprentices = new List<Apprentice>();
+        foreach (var apprentice in apprentices)
+        {
+            if (apprentice.SkipCount == 0)
+            {
+                Console.WriteLine($"Adding apprentice: {apprentice.Name}");
+                filteredApprentices.Add(apprentice);
+            }
+        }
+
+        return filteredApprentices;
+    }
+    
     public static Apprentice GetCurrentBerichtsheftWriterOfGroup(int groupId)
     {
         using BerichtBotContext context = new BerichtBotContext();
@@ -33,6 +48,7 @@ public class Berichtsheft
         LogRepository logRepository = new LogRepository(context);
 
         List<Apprentice> apprenticesOfGroup = apprenticeRepository.GetApprenticesInSameGroupByGroupId(groupId);
+        apprenticesOfGroup = GetNonSkippedApprentices(apprenticesOfGroup);
 
         if (apprenticesOfGroup.FirstOrDefault() == null)
         {
@@ -63,8 +79,9 @@ public class Berichtsheft
             if (!hasWroteBefore) return apprentice;
         }
 
-        // Checks which Apprentice hasn't wrote the longest
+        // Checks which Apprentice hasn't wrote the longest and is not being skipped
         var filteredList = logs
+            .Where(log => apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount == 0) // Filter logs based on SkipCount
             .GroupBy(log => apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
             .Select(group => group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
             .ToList();
