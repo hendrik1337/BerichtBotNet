@@ -222,7 +222,7 @@ public class ApprenticeCommands
         await command.RespondAsync("Wähle deine Gruppe", components: builder.Build());
     }
     
-    public static async void SendGroupSelector(SocketModal modal)
+    public static async void SendGroupSelector(SocketModal modal, string groupName)
     {
         using BerichtBotContext context = new BerichtBotContext();
         GroupRepository groupRepository = new GroupRepository(context);
@@ -245,7 +245,7 @@ public class ApprenticeCommands
 
         var builder = new ComponentBuilder()
             .WithSelectMenu(menuBuilder);
-        await modal.RespondAsync("Gruppe wurde hinzugefügt\n\n\nWähle jetzt deine Gruppe", components: builder.Build());
+        await modal.RespondAsync($"Gruppe: {groupName} wurde hinzugefügt\n\n\nWähle jetzt deine Gruppe aus.", components: builder.Build());
     }
 
     private static async void SendApprenticeRemoveConfirmation(SocketSlashCommand command)

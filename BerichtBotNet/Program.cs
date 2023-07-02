@@ -1,5 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Runtime.CompilerServices;
+using BerichtBotNet.Data;
 using BerichtBotNet.Discord;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Models;
@@ -18,12 +20,15 @@ namespace BerichtBotNet;
 class BerichtBotNet
 {
     private DiscordSocketClient _client = null!;
+    private IScheduler _scheduler = null!;
+    private CancellationTokenSource _cancellationTokenSource;
 
     public static Task Main(string[] args) => new BerichtBotNet().MainAsync();
 
     public async Task MainAsync()
     {
-
+        _cancellationTokenSource = new CancellationTokenSource();
+        
         _client = new DiscordSocketClient();
 
         _client.Log += Log;
@@ -42,15 +47,30 @@ class BerichtBotNet
 
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
+        
+       
 
         await LoadTaskScheduler();
 
         // Block this task until the program is closed.
-        // await Task.Delay(-1);
+        /*try
+        {
+            await Task.Delay(-1, _cancellationTokenSource.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            // Task was canceled, perform cleanup here
+            await _scheduler.Shutdown();
+            await _client.StopAsync();
+        }*/
     }
 
-    private static async Task LoadTaskScheduler()
+    private async Task LoadTaskScheduler()
     {
+        using BerichtBotContext context = new BerichtBotContext();
+        GroupRepository groupRepository = new GroupRepository(context);
+        List<Group> groups = groupRepository.GetAllGroups();
+        
         // Load the Task Scheduler
         var builder = Host.CreateDefaultBuilder()
             .ConfigureServices((cxt, services) =>
@@ -60,21 +80,50 @@ class BerichtBotNet
             }).Build();
 
         var schedulerFactory = builder.Services.GetRequiredService<ISchedulerFactory>();
-        var scheduler = await schedulerFactory.GetScheduler();
+        _scheduler = await schedulerFactory.GetScheduler();
+        
+        // Create Custom Reminder Job for every group
+        foreach (var group in groups)
+        {
+            // Define the job and tie it to our ReminderTasks class
+            var reminderJob = JobBuilder.Create<ReminderTasks>()
+                .WithIdentity($"myGroupReminderJob{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
+                .Build();
 
-        // Define the job and tie it to our ReminderTasks class
-        var job = JobBuilder.Create<ReminderTasks>()
-            .WithIdentity("myJob", "group1")
+            reminderJob.JobDataMap.Put("discord", _client);
+            reminderJob.JobDataMap.Put("groupId", group.Id);
+
+            var reminderTrigger = TriggerBuilder.Create()
+                .WithIdentity($"myGroupReminderTrigger{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
+                .StartNow()
+                .WithSchedule(CronScheduleBuilder
+                    .WeeklyOnDayAndHourAndMinute(
+                        group.ReminderWeekDay, 
+                        group.ReminderTime.ToLocalTime().Hour, 
+                        group.ReminderTime.ToLocalTime().Minute))
+                .Build();
+            
+            await _scheduler.ScheduleJob(reminderJob, reminderTrigger);
+        }
+
+        
+
+        var updateApprentices = JobBuilder.Create<UpdateCurrentApprenticeTask>()
+            .WithIdentity("updateApprentices", "group2")
             .Build();
         
-        var trigger = TriggerBuilder.Create()
-            .WithIdentity("myTrigger", "group1")
+        
+        
+        var updateApprenticesTrigger = TriggerBuilder.Create()
+            .WithIdentity("myTrigger2", "group2")
             .StartNow()
             .WithSchedule(CronScheduleBuilder
-                .WeeklyOnDayAndHourAndMinute(DayOfWeek.Monday, 8, 30))
+                .WeeklyOnDayAndHourAndMinute(DayOfWeek.Sunday, 20, 0))
             .Build();
 
-        await scheduler.ScheduleJob(job, trigger);
+        
+        await _scheduler.ScheduleJob(updateApprentices, updateApprenticesTrigger);
+        await _scheduler.Start();
         
         await builder.RunAsync();
     }
@@ -141,6 +190,12 @@ class BerichtBotNet
         }
     }
 
+    public async Task StopBot()
+    {
+        _cancellationTokenSource.Cancel();
+        await _scheduler.Shutdown();
+        await _client.StopAsync();
+    }
 
     private Task Log(LogMessage msg)
     {

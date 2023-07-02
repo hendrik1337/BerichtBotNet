@@ -9,4 +9,7 @@ public class Group
     public string Name { get; set; } = null!;
     public string? DiscordGroupId { get; set; }
     public DateTime StartOfApprenticeship { get; set; }
+    // Only Hour and Minute of ReminderTime is used. Date is ignored
+    public DateTime ReminderTime { get; set; }
+    public DayOfWeek ReminderWeekDay { get; set; }
 }
