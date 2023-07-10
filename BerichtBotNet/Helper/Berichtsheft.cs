@@ -41,7 +41,7 @@ public class Berichtsheft
         return filteredApprentices;
     }
     
-    public static Apprentice GetCurrentBerichtsheftWriterOfGroup(int groupId)
+    public static Apprentice? GetCurrentBerichtsheftWriterOfGroup(int groupId)
     {
         using BerichtBotContext context = new BerichtBotContext();
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);

@@ -9,14 +9,15 @@ namespace BerichtBotNet.Helper;
 
 public class CommandCreator
 {
-
     public static async Task CreateCommands(DiscordSocketClient client)
     {
-        
+        await WeekCommands(client);
+        await AzubiCommands(client);
     }
 
     private static async Task AzubiCommands(DiscordSocketClient client)
     {
+        Console.WriteLine("Creating Azubi Commands");
         var globalAzubiCommand = new SlashCommandBuilder()
             .WithName("azubi")
             .WithDescription("Befehle um Azubis zu verwalten")
@@ -27,6 +28,8 @@ public class CommandCreator
                 .AddChoice("hinzufügen", "add")
                 .AddChoice("bearbeiten", "edit")
                 .AddChoice("löschen", "remove")
+                .AddChoice("überspringen", "skip")
+                .AddChoice("überspringen-entfernen", "un-skip")
                 .WithType(ApplicationCommandOptionType.String)
             );
 
@@ -43,6 +46,7 @@ public class CommandCreator
 
     private static async Task GroupCommands(DiscordSocketClient client)
     {
+        Console.WriteLine("Creating Group Commands");
         var globalGroupCommand = new SlashCommandBuilder()
             .WithName("gruppe")
             .WithDescription("Befehle um Gruppen zu verwalten")
@@ -69,6 +73,7 @@ public class CommandCreator
 
     private static async Task BerichtsheftCommands(DiscordSocketClient client)
     {
+        Console.WriteLine("Creating Berichtsheft Commands");
         var globalGroupCommand = new SlashCommandBuilder()
             .WithName("wer")
             .WithDescription("Gibt den Berichtsheftschreiber zurück")
@@ -94,6 +99,7 @@ public class CommandCreator
 
     private static async Task WeekCommands(DiscordSocketClient client)
     {
+        Console.WriteLine("Creating Week Commands");
         var globalAzubiCommand = new SlashCommandBuilder()
             .WithName("woche")
             .WithDescription("Kommandos um Wochen auszulassen.")

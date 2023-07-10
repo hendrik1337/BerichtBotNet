@@ -28,7 +28,7 @@ class BerichtBotNet
     public async Task MainAsync()
     {
         _cancellationTokenSource = new CancellationTokenSource();
-        
+
         _client = new DiscordSocketClient();
 
         _client.Log += Log;
@@ -40,15 +40,14 @@ class BerichtBotNet
         _client.ModalSubmitted += ModalSubmittedHandler;
 
         _client.ButtonExecuted += MyMessageComponentHandler;
-        
+
         _client.SelectMenuExecuted += MyMessageComponentHandler;
 
         var token = Environment.GetEnvironmentVariable("DiscordToken");
 
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
-        
-       
+
 
         await LoadTaskScheduler();
 
@@ -70,7 +69,7 @@ class BerichtBotNet
         using BerichtBotContext context = new BerichtBotContext();
         GroupRepository groupRepository = new GroupRepository(context);
         List<Group> groups = groupRepository.GetAllGroups();
-        
+
         // Load the Task Scheduler
         var builder = Host.CreateDefaultBuilder()
             .ConfigureServices((cxt, services) =>
@@ -81,7 +80,7 @@ class BerichtBotNet
 
         var schedulerFactory = builder.Services.GetRequiredService<ISchedulerFactory>();
         _scheduler = await schedulerFactory.GetScheduler();
-        
+
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
         {
@@ -98,22 +97,20 @@ class BerichtBotNet
                 .StartNow()
                 .WithSchedule(CronScheduleBuilder
                     .WeeklyOnDayAndHourAndMinute(
-                        group.ReminderWeekDay, 
-                        group.ReminderTime.ToLocalTime().Hour, 
+                        group.ReminderWeekDay,
+                        group.ReminderTime.ToLocalTime().Hour,
                         group.ReminderTime.ToLocalTime().Minute))
                 .Build();
-            
+
             await _scheduler.ScheduleJob(reminderJob, reminderTrigger);
         }
 
-        
 
         var updateApprentices = JobBuilder.Create<UpdateCurrentApprenticeTask>()
             .WithIdentity("updateApprentices", "group2")
             .Build();
-        
-        
-        
+
+
         var updateApprenticesTrigger = TriggerBuilder.Create()
             .WithIdentity("myTrigger2", "group2")
             .StartNow()
@@ -121,36 +118,16 @@ class BerichtBotNet
                 .WeeklyOnDayAndHourAndMinute(DayOfWeek.Sunday, 20, 0))
             .Build();
 
-        
+
         await _scheduler.ScheduleJob(updateApprentices, updateApprenticesTrigger);
         await _scheduler.Start();
-        
+
         await builder.RunAsync();
     }
 
     private async Task Client_Ready()
     {
-        /*
-        var globalAzubiCommand = new SlashCommandBuilder()
-            .WithName("wer")
-            .WithDescription("Gibt den Berichsheftschreiber zurück")
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("nummer")
-                .WithDescription("Welche Berichsheftnummer? (optional)")
-                .WithRequired(false)
-                .AddChoice("nummer", "number")
-                .WithType(ApplicationCommandOptionType.String)
-            );
-
-        try
-        {
-            await _client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
-        }
-        catch (HttpException exception)
-        {
-            var json = JsonConvert.SerializeObject(exception.ToString(), Formatting.Indented);
-            Console.WriteLine(json);
-        }*/
+        await CommandCreator.CreateCommands(_client);
     }
 
     private async Task SlashCommandHandler(SocketSlashCommand command)
@@ -165,6 +142,9 @@ class BerichtBotNet
                 break;
             case "wer":
                 BerichtsheftCommands.BerichtsheftCommandHandler(command);
+                break;
+            case "woche":
+                WeekCommands.WeekCommandHandler(command);
                 break;
         }
     }
@@ -181,7 +161,7 @@ class BerichtBotNet
             GroupCommands.GroupModalHandler(modal);
         }
     }
-    
+
     public async Task MyMessageComponentHandler(SocketMessageComponent component)
     {
         if (component.Data.CustomId.Contains("Apprentice"))

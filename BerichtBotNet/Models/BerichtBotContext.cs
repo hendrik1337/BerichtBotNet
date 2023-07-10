@@ -8,7 +8,8 @@ public class BerichtBotContext : DbContext
     public DbSet<Apprentice> Apprentices { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<Log> Logs { get; set; }
-    
+    public DbSet<SkippedWeeks> SkippedWeeks { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder contextOptionsBuilder)
     {
         // Connection String to Connect to the Database

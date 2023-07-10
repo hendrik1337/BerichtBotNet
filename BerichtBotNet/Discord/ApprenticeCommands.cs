@@ -103,7 +103,7 @@ public class ApprenticeCommands
         GroupRepository groupRepository = new GroupRepository(context);
         if (groupRepository.GetGroupByName(group) == null)
         {
-            await modal.RespondAsync("Gewählte Gruppe konnte nicht gefunden werden.");
+            await modal.RespondAsync($"Gewählte Gruppe ({group}) konnte nicht gefunden werden.");
             return;
         }
 
@@ -128,11 +128,6 @@ public class ApprenticeCommands
 
         // Answer to User
         string answer = $"Azubi: {username} wurde aktualisiert.";
-        if (!groupExists)
-        {
-            answer += $" Die Gruppe {group} Existierte noch nicht und wurde erstellt.";
-        }
-
         await modal.RespondAsync(answer);
     }
 
@@ -149,8 +144,8 @@ public class ApprenticeCommands
                 .WithCustomId("editApprenticeMenu")
                 .AddTextInput("Name", "azubi_name", value: user.Name)
                 .AddTextInput("Discord Id", "azubi_id", value: user.DiscordUserId)
-                .AddTextInput("Gruppe", "azubi_group", value: user.Group?.Name)
-                .AddTextInput("Überspringen", "azubi_skip", value: user.SkipCount.ToString(), placeholder: "Anzahl, die Azubi übersprungen werden soll. -1 für Unendlich");
+                .AddTextInput("Gruppe", "azubi_group", value: user.Group?.Name, placeholder: "Stelle sicher, dass die Gruppe existiert.")
+                .AddTextInput("Überspringen", "azubi_skip", value: user.SkipCount.ToString(), placeholder: "0 = Wird nicht übersprungen, 1 = wird übersprungen");
 
             await command.RespondWithModalAsync(addApprenticeModal.Build());
         }
