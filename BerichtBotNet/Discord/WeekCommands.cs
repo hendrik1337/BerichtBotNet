@@ -59,7 +59,7 @@ public static class WeekCommands
             {
                 ans += date.ToString("d", Constants.CultureInfo);
                 ans += " (";
-                ans += WeekHelper.DateTimetoCalendarWeek(date);
+                ans += WeekHelper.DateTimeToCalendarWeekYearCombination(date);
                 ans += ") ";
             }
 
