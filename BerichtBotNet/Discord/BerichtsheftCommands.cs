@@ -27,29 +27,36 @@ public class BerichtsheftCommands
 
         if (requester == null)
         {
-            command.RespondAsync($"Du wurdest nicht in der Datenbank gefunden. Registriere dich mit '/azubi hinzufügen'");
+            await command.RespondAsync(
+                $"Du wurdest nicht in der Datenbank gefunden. Registriere dich mit '/azubi hinzufügen'");
             return;
         }
 
         List<SkippedWeeks> skippedWeeksList = weeksRepository.GetByGroupId(int.Parse(requester.Group.Id.ToString()));
-        string currendCalendarWeek = WeekHelper.DateTimetoCalendarWeek(DateTime.Now);
+        string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
+        int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
+        string berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
+        Console.WriteLine(requester.Group.StartOfApprenticeship);
 
         foreach (var date in skippedWeeksList)
         {
-            if (WeekHelper.DateTimetoCalendarWeek(date.SkippedWeek) == currendCalendarWeek)
+            if (WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek) == currentCalendarWeek)
             {
-                await command.RespondAsync($"Diese Woche ({currendCalendarWeek}) muss kein Berichtsheft geschrieben werden.");
+                await command.RespondAsync(
+                    $"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.");
             }
         }
-        
+
         Apprentice? currentBerichtsheftWriter = Berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
         if (currentBerichtsheftWriter == null)
         {
-            command.RespondAsync($"Es wurde kein Azubi gefunden, der das Berichtsheft schreiben kann");
+            await command.RespondAsync(
+                $"Es wurde kein Azubi gefunden, der das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}");
             return;
         }
 
-        command.RespondAsync($"Azubi: {currentBerichtsheftWriter.Name} ist diese Woche dran.");
+        await command.RespondAsync(
+            $"Azubi: {currentBerichtsheftWriter.Name} ist diese Woche {berichtsheftNumberPlusCw} dran.");
     }
 }
