@@ -21,7 +21,7 @@ public class CommandCreator
         // await WeekCommands();
         // await AzubiCommands();
         // await GroupCommands();
-        await BerichtsheftCommands();
+        // await BerichtsheftCommands();
     }
 
     private async Task AzubiCommands()
@@ -83,17 +83,6 @@ public class CommandCreator
     private async Task BerichtsheftCommands()
     {
         Console.WriteLine("Creating Berichtsheft Commands");
-        // var globalGroupCommand = new SlashCommandBuilder()
-        //     .WithName("wer")
-        //     .WithDescription("Gibt den Berichtsheftschreiber zurück")
-        //     .AddOption(new SlashCommandOptionBuilder()
-        //         .WithName("nummer")
-        //         .WithDescription("Welche Berichtsheftnummer? (optional)")
-        //         .WithRequired(false)
-        //         .AddOption("nummer", ApplicationCommandOptionType.String, "",
-        //             isRequired: true)
-        //         .WithType(ApplicationCommandOptionType.String)
-        //     );
 
         var globalGroupCommand = new SlashCommandBuilder()
             .WithName("berichtsheft")
@@ -103,7 +92,8 @@ public class CommandCreator
                 .WithDescription("Welche Berichtsheftnummer? (optional)")
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithRequired(false)
-                .AddOption("nummer", ApplicationCommandOptionType.String, "Bestimmte Berichtsheftnummer (optional)",
+                .AddOption("nummer", ApplicationCommandOptionType.String,
+                    "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
                     isRequired: false))
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("reihenfolge")
@@ -115,7 +105,7 @@ public class CommandCreator
                 .WithDescription("Gibt die vergangenen Berichtsheftschreiber zurück")
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .AddOption("anzahl", ApplicationCommandOptionType.String,
-                    "Wie viele Logs sollen angezeigt werden (default=10)", isRequired:false)
+                    "Wie viele Logs sollen angezeigt werden (default=10)", isRequired: false)
                 .WithRequired(false));
 
         try
