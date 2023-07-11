@@ -16,9 +16,9 @@ public class WeekHelperTests
         string[] stringDates = { "2023-01-01", "2023-01-07", "2023-01-15" };
         List<DateTime> expectedList = new List<DateTime>
         {
-            new DateTime(2023, 1, 1),
-            new DateTime(2023, 1, 7),
-            new DateTime(2023, 1, 15)
+            new (2023, 1, 1),
+            new (2023, 1, 7),
+            new (2023, 1, 15)
         };
 
         // Act
@@ -32,11 +32,11 @@ public class WeekHelperTests
     public void DateTimetoCalendarWeek_ReturnsCorrectCalendarWeekString()
     {
         // Arrange
-        DateTime[] dates = new DateTime[]
+        DateTime[] dates = 
         {
-            new DateTime(2023, 1, 1),
-            new DateTime(2023, 12, 31),
-            new DateTime(2023, 7, 11)
+            new (2023, 1, 1),
+            new (2023, 12, 31),
+            new (2023, 7, 11)
         };
         string[] expectedCalendarWeekString = {"KW 52 2022", "KW 52 2023", "KW 28 2023"};
 
