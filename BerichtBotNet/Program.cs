@@ -149,7 +149,8 @@ class BerichtBotNet
 
     private async Task Client_Ready()
     {
-        await CommandCreator.CreateCommands(_client);
+        CommandCreator commandCreator = new CommandCreator(_client);
+        await commandCreator.CreateCommands();
     }
 
     private async Task SlashCommandHandler(SocketSlashCommand command)

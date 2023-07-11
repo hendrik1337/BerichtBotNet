@@ -9,13 +9,23 @@ namespace BerichtBotNet.Helper;
 
 public class CommandCreator
 {
-    public static async Task CreateCommands(DiscordSocketClient client)
+
+    private readonly DiscordSocketClient _client;
+
+    public CommandCreator(DiscordSocketClient client)
     {
-        await WeekCommands(client);
-        await AzubiCommands(client);
+        _client = client;
     }
 
-    private static async Task AzubiCommands(DiscordSocketClient client)
+    public async Task CreateCommands()
+    {
+        // await WeekCommands();
+        // await AzubiCommands();
+        // await GroupCommands();
+        // await BerichtsheftCommands();
+    }
+
+    private async Task AzubiCommands()
     {
         Console.WriteLine("Creating Azubi Commands");
         var globalAzubiCommand = new SlashCommandBuilder()
@@ -35,7 +45,7 @@ public class CommandCreator
 
         try
         {
-            await client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
+            await _client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
         }
         catch (HttpException exception)
         {
@@ -44,7 +54,7 @@ public class CommandCreator
         }
     }
 
-    private static async Task GroupCommands(DiscordSocketClient client)
+    private async Task GroupCommands()
     {
         Console.WriteLine("Creating Group Commands");
         var globalGroupCommand = new SlashCommandBuilder()
@@ -62,7 +72,7 @@ public class CommandCreator
 
         try
         {
-            await client.Rest.CreateGlobalCommand(globalGroupCommand.Build());
+            await _client.Rest.CreateGlobalCommand(globalGroupCommand.Build());
         }
         catch (HttpException exception)
         {
@@ -71,7 +81,7 @@ public class CommandCreator
         }
     }
 
-    private static async Task BerichtsheftCommands(DiscordSocketClient client)
+    private async Task BerichtsheftCommands()
     {
         Console.WriteLine("Creating Berichtsheft Commands");
         var globalGroupCommand = new SlashCommandBuilder()
@@ -88,7 +98,7 @@ public class CommandCreator
 
         try
         {
-            await client.Rest.CreateGlobalCommand(globalGroupCommand.Build());
+            await _client.Rest.CreateGlobalCommand(globalGroupCommand.Build());
         }
         catch (HttpException exception)
         {
@@ -97,7 +107,7 @@ public class CommandCreator
         }
     }
 
-    private static async Task WeekCommands(DiscordSocketClient client)
+    private async Task WeekCommands()
     {
         Console.WriteLine("Creating Week Commands");
         var globalAzubiCommand = new SlashCommandBuilder()
@@ -123,7 +133,7 @@ public class CommandCreator
 
         try
         {
-            await client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
+            await _client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
         }
         catch (HttpException exception)
         {
