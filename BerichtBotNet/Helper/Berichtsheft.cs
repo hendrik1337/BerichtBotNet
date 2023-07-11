@@ -165,7 +165,7 @@ public class Berichtsheft
     }
 
     // Diese Methode dient dazu, die Reihenfolge der Auszubildenden im  Berichtsheft-Schreiben aus einer bestimmten Gruppe zu sortieren.
-    public List<Apprentice>? BerichtsheftOrder(Group group)
+    public (List<Apprentice>?, List<Apprentice>?) BerichtsheftOrder(Group group)
     {
         // Die Liste der Auszubildenden, die zur angegebenen Gruppe gehören, wird abgerufen.
         List<Apprentice> apprenticesOfGroup = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(group.Id);
@@ -176,29 +176,30 @@ public class Berichtsheft
         // Auszubildende in der Gruppe identifizieren, die noch nie einen Bericht geschrieben haben.
         List<Apprentice> apprenticesOfGroupThatNeverWrote = GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
-        List<Apprentice> apprenticesOrder = new List<Apprentice>();
+        List<Apprentice> apprenticesOrderNotSkipped = new List<Apprentice>();
+        List<Apprentice> apprenticesOrderSkipped = new List<Apprentice>();
 
         // Nicht übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben , in die Reihenfolge aufnehmen.
-        apprenticesOrder = apprenticesOrder
+        apprenticesOrderNotSkipped = apprenticesOrderNotSkipped
             .Concat(GetNonSkippedApprenticesThatNeverWrote(apprenticesOfGroupThatNeverWrote)).ToList();
 
         // Auszubildende hinzufügen, die nicht übersprungen werden, aber schonmal ein Berichtsheft geschrieben haben, zur Reihenfolge.
         foreach (var log in GetNonSkippedApprenticesLog(logs))
         {
-            apprenticesOrder.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
+            apprenticesOrderNotSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
         }
 
         // Übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben haben, in die Reihenfolge aufnehmen.
-        apprenticesOrder = apprenticesOrder
+        apprenticesOrderSkipped = apprenticesOrderNotSkipped
             .Concat(GetSkippedApprenticesThatNeverWrote(apprenticesOfGroupThatNeverWrote)).ToList();
 
         // Auszubildende hinzufügen, die übersprungen werden aber schonmal das Berichtsheft geschrieben haben, zur Reihenfolge.
         foreach (var log in GetSkippedApprenticesLog(logs))
         {
-            apprenticesOrder.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
+            apprenticesOrderSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
         }
         
-        return apprenticesOrder;
+        return (apprenticesOrderNotSkipped, apprenticesOrderSkipped);
     }
 
     public void CurrentBerichsheftWriterWrote(int groupId)
