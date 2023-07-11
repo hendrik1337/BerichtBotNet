@@ -175,7 +175,7 @@ class BerichtBotNet
             case "gruppe":
                 _groupController.GroupCommandHandler(command);
                 break;
-            case "wer":
+            case "berichtsheft":
                 _berichtsheftController.BerichtsheftCommandHandler(command);
                 break;
             case "woche":

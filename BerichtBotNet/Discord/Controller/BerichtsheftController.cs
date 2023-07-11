@@ -23,10 +23,14 @@ public class BerichtsheftController
 
     public void BerichtsheftCommandHandler(SocketSlashCommand command)
     {
-        switch (command.Data.Name)
+        switch (command.Data.Options.First().Name)
         {
             case "wer":
                 SendCurrentBerichtsheftWriter(command);
+                break;
+            case "reihenfolge":
+                break;
+            case "log":
                 break;
         }
     }
