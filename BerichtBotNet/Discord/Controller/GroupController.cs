@@ -1,4 +1,5 @@
 ﻿using BerichtBotNet.Data;
+using BerichtBotNet.Discord.View;
 using BerichtBotNet.Exceptions;
 using BerichtBotNet.Models;
 using BerichtBotNet.Repositories;
@@ -9,14 +10,27 @@ using Constants = BerichtBotNet.Helper.Constants;
 
 namespace BerichtBotNet.Discord;
 
-public class GroupCommands
+public class GroupController
 {
-    public static void GroupCommandHandler(SocketSlashCommand command)
+    private readonly GroupRepository _groupRepository;
+
+    private readonly GroupView _groupView;
+    private readonly ApprenticeView _apprenticeView;
+
+    public GroupController(GroupRepository groupRepository)
+    {
+        _groupRepository = groupRepository;
+        
+        _groupView = new GroupView();
+        _apprenticeView = new ApprenticeView();
+    }
+
+    public void GroupCommandHandler(SocketSlashCommand command)
     {
         switch (command.Data.Options.First().Value)
         {
             case "add":
-                AddGroup(command);
+                _groupView.AddGroup(command);
                 break;
             case "edit":
                 break;
@@ -25,7 +39,7 @@ public class GroupCommands
         }
     }
 
-    public static async void GroupModalHandler(SocketModal modal)
+    public async void GroupModalHandler(SocketModal modal)
     {
         switch (modal.Data.CustomId)
         {
@@ -38,17 +52,14 @@ public class GroupCommands
         }
     }
 
-    private static async Task AddGroup(SocketModal modal)
+    private async Task AddGroup(SocketModal modal)
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        GroupRepository groupRepository = new GroupRepository(context);
-
         try
         {
             var groupName = AddGroupFromModal(modal, out var group);
-            if (groupRepository.GetGroupByName(groupName) == null)
+            if (_groupRepository.GetGroupByName(groupName) == null)
             {
-                groupRepository.CreateGroup(group);
+                _groupRepository.CreateGroup(group);
                 await modal.RespondAsync($"Gruppe: {group.Name} wurde hinzugefügt");
             }
             else
@@ -65,19 +76,22 @@ public class GroupCommands
     }
 
     // This function Adds a Group and restarts the AddApprentice Routine
-    private static async Task AddGroupAndApprentice(SocketModal modal)
+    private async Task AddGroupAndApprentice(SocketModal modal)
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        GroupRepository groupRepository = new GroupRepository(context);
 
         try
         {
             var groupName = AddGroupFromModal(modal, out var group);
 
-            if (groupRepository.GetGroupByName(groupName) == null)
+            if (_groupRepository.GetGroupByName(groupName) == null)
             {
-                groupRepository.CreateGroup(group);
-                ApprenticeCommands.SendGroupSelector(modal, groupName);
+                _groupRepository.CreateGroup(group);
+
+                List<Group>? groups = _groupRepository.GetAllGroups();
+                
+                string response = $"Gruppe: {groupName} wurde hinzugefügt\n\n\nWähle jetzt deine Gruppe aus.";
+                _apprenticeView.SendGroupSelectorDropdown(modal, groups, response);
+                // ApprenticeCommands.SendGroupSelector(modal, groupName);
             }
             else
             {
@@ -89,9 +103,9 @@ public class GroupCommands
             await modal.RespondAsync("Wochentag wurde nicht erkannt. Mögliche Eingaben: Montag, Dienstag,...");
         }
     }
-
+    
     // This Function only adds a group
-    private static string AddGroupFromModal(SocketModal modal, out Group group)
+    public string AddGroupFromModal(SocketModal modal, out Group group)
     {
         List<SocketMessageComponentData> components =
             modal.Data.Components.ToList();
@@ -122,7 +136,7 @@ public class GroupCommands
         return groupName;
     }
 
-    private static DayOfWeek GroupReminderWeekday(string groupDay)
+    private DayOfWeek GroupReminderWeekday(string groupDay)
     {
         DayOfWeek groupReminderWeekday;
         switch (groupDay.ToLower())
@@ -155,31 +169,5 @@ public class GroupCommands
         return groupReminderWeekday;
     }
 
-    private static ModalBuilder GetAddGroupModal(ulong channelId)
-    {
-        return new ModalBuilder()
-            .WithTitle("Gruppe Hinzufügen")
-            .AddTextInput("Name", "group_name", placeholder: "FI-22")
-            .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022")
-            .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30")
-            .AddTextInput("Berichtsheft Erinnerungs Tag", "group_day", placeholder: "Montag / Dienstag / Mittwoch /...")
-            .AddTextInput("Discord Kanal Id (Standard aktueller Kanal)", "group_id", placeholder: "Channel für Wochentliche Erinnerungen",
-                required: true, value: channelId.ToString());
-    }
-
-    // Adds group via direct slash command
-    private static async void AddGroup(SocketSlashCommand command)
-    {
-        var addApprenticeModal = GetAddGroupModal(command.Channel.Id);
-        addApprenticeModal.WithCustomId("addGroupMenu");
-        await command.RespondWithModalAsync(addApprenticeModal.Build());
-    }
-
-    // Adds group via MessageComponent
-    public static async void AddGroup(SocketMessageComponent component)
-    {
-        var addApprenticeModal = GetAddGroupModal(component.Channel.Id);
-        addApprenticeModal.WithCustomId("addGroupMenuAndApprentice");
-        await component.RespondWithModalAsync(addApprenticeModal.Build());
-    }
+    
 }

@@ -28,7 +28,10 @@ class BerichtBotNet
     private LogRepository _logRepository;
     private SkippedWeeksRepository _weeksRepository;
     
-    private BerichtsheftCommands _berichtsheftCommands;
+    private BerichtsheftController _berichtsheftController;
+    private ApprenticeController _apprenticeController;
+    private GroupController _groupController;
+    private WeekController _weekController;
 
     public static Task Main(string[] args) => new BerichtBotNet().MainAsync();
 
@@ -81,7 +84,10 @@ class BerichtBotNet
         _logRepository = new LogRepository(context);
         _weeksRepository = new SkippedWeeksRepository(context);
 
-        _berichtsheftCommands = new BerichtsheftCommands(_apprenticeRepository, _weeksRepository, _logRepository);
+        _apprenticeController = new ApprenticeController(_apprenticeRepository, _groupRepository);
+        _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
+        _groupController = new GroupController(_groupRepository);
+        _weekController = new WeekController(_apprenticeRepository, _weeksRepository);
     }
 
     private async Task LoadTaskScheduler()
@@ -158,16 +164,16 @@ class BerichtBotNet
         switch (command.Data.Name)
         {
             case "azubi":
-                ApprenticeCommands.ApprenticeCommandHandler(command);
+                _apprenticeController.ApprenticeCommandHandler(command);
                 break;
             case "gruppe":
-                GroupCommands.GroupCommandHandler(command);
+                _groupController.GroupCommandHandler(command);
                 break;
             case "wer":
-                _berichtsheftCommands.BerichtsheftCommandHandler(command);
+                _berichtsheftController.BerichtsheftCommandHandler(command);
                 break;
             case "woche":
-                WeekCommands.WeekCommandHandler(command);
+                _weekController.WeekCommandHandler(command);
                 break;
         }
     }
@@ -176,12 +182,12 @@ class BerichtBotNet
     {
         if (modal.Data.CustomId.Contains("ApprenticeMenu"))
         {
-            ApprenticeCommands.ApprenticeModalHandler(modal);
+            _apprenticeController.ApprenticeModalHandler(modal);
         }
 
         if (modal.Data.CustomId.Contains("GroupMenu"))
         {
-            GroupCommands.GroupModalHandler(modal);
+            _groupController.GroupModalHandler(modal);
         }
     }
 
@@ -189,7 +195,7 @@ class BerichtBotNet
     {
         if (component.Data.CustomId.Contains("Apprentice"))
         {
-            ApprenticeCommands.ApprenticeMessageComponentHandler(component);
+            _apprenticeController.ApprenticeMessageComponentHandler(component);
         }
     }
 

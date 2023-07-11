@@ -1,4 +1,5 @@
 using BerichtBotNet.Data;
+using BerichtBotNet.Exceptions;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Models;
 using BerichtBotNet.Repositories;
@@ -6,13 +7,13 @@ using Discord.WebSocket;
 
 namespace BerichtBotNet.Discord;
 
-public class BerichtsheftCommands
+public class BerichtsheftController
 {
     private readonly ApprenticeRepository _apprenticeRepository;
     private readonly SkippedWeeksRepository _weeksRepository;
     private readonly LogRepository _logRepository;
 
-    public BerichtsheftCommands(ApprenticeRepository apprenticeRepository, SkippedWeeksRepository weeksRepository,
+    public BerichtsheftController(ApprenticeRepository apprenticeRepository, SkippedWeeksRepository weeksRepository,
         LogRepository logRepository)
     {
         _apprenticeRepository = apprenticeRepository;
@@ -45,7 +46,6 @@ public class BerichtsheftCommands
         string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
         string berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
-        Console.WriteLine(requester.Group.StartOfApprenticeship);
 
         foreach (var date in skippedWeeksList)
         {
@@ -57,16 +57,18 @@ public class BerichtsheftCommands
         }
 
         Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository);
-        Apprentice? currentBerichtsheftWriter = berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
-        if (currentBerichtsheftWriter == null)
+        try
+        {
+            Apprentice? currentBerichtsheftWriter =
+                berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+            await command.RespondAsync(
+                $"Azubi: {currentBerichtsheftWriter.Name} ist diese Woche {berichtsheftNumberPlusCw} dran.");
+        }
+        catch (GroupIsEmptyException ignored)
         {
             await command.RespondAsync(
                 $"Es wurde kein Azubi gefunden, der das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}");
-            return;
         }
-
-        await command.RespondAsync(
-            $"Azubi: {currentBerichtsheftWriter.Name} ist diese Woche {berichtsheftNumberPlusCw} dran.");
     }
 }

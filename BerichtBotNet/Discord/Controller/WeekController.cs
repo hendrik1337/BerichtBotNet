@@ -6,9 +6,18 @@ using Discord.WebSocket;
 
 namespace BerichtBotNet.Discord;
 
-public static class WeekCommands
+public class WeekController
 {
-    public static void WeekCommandHandler(SocketSlashCommand command)
+    private readonly ApprenticeRepository _apprenticeRepository;
+    private readonly SkippedWeeksRepository _weeksRepository;
+
+    public WeekController(ApprenticeRepository apprenticeRepository, SkippedWeeksRepository weeksRepository)
+    {
+        _apprenticeRepository = apprenticeRepository;
+        _weeksRepository = weeksRepository;
+    }
+
+    public void WeekCommandHandler(SocketSlashCommand command)
     {
         switch (command.Data.Options.First().Name)
         {
@@ -24,7 +33,7 @@ public static class WeekCommands
         }
     }
 
-    private static async void skipWeek(SocketSlashCommand command)
+    public async void skipWeek(SocketSlashCommand command)
     {
         var commandValue = command.Data.Options.First().Options.First().Value;
         var dates = commandValue.ToString()!.Trim().Split(",");
@@ -32,10 +41,7 @@ public static class WeekCommands
         try
         {
             var parsedDates = WeekHelper.StringArrayToDateTimeList(dates);
-            await using BerichtBotContext context = new BerichtBotContext();
-            SkippedWeeksRepository skippedWeeksRepository = new SkippedWeeksRepository(context);
-            ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
-            Apprentice? user = apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
+            Apprentice? user = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
 
             if (user == null)
             {
@@ -50,7 +56,7 @@ public static class WeekCommands
                     SkippedWeek = date.ToUniversalTime(),
                     GroupId = user.Group.Id
                 };
-                skippedWeeksRepository.Create(week);
+                _weeksRepository.Create(week);
             }
 
             string ans = "Datum / Daten: ";
