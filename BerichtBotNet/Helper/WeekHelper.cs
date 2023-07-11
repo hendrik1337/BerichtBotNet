@@ -15,12 +15,20 @@ public class WeekHelper
         return parsedList;
     }
 
-    public static string DateTimetoCalendarWeek(DateTime date)
+    public static string DateTimeToCalendarWeekYearCombination(DateTime date)
     {
-        int calendarWeek = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(date, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+        return "KW " + ISOWeek.GetWeekOfYear(date) + " " + ISOWeek.GetYear(date);;
+    }
 
-        string calendarWeekString = "KW " + calendarWeek.ToString() + " " + date.Year.ToString();
-
-        return calendarWeekString;
+    public static int GetBerichtsheftNumber(DateTime ausbildungsStart, DateTime currentDate)
+    {
+        // Setzt beide Tage auf Montag und entfernt die Uhrzeit, um nur die Wochen zu unterscheiden
+        currentDate = currentDate.Date.AddDays(-(int)currentDate.DayOfWeek + 1);
+        ausbildungsStart = ausbildungsStart.Date.AddDays(-(int)ausbildungsStart.DayOfWeek + 1);
+        
+        TimeSpan duration = currentDate.Subtract(ausbildungsStart);
+        
+        // + 1, weil die Nummerierung bei 1 und nicht bei 0 beginnt
+        return (int)Math.Ceiling(duration.TotalDays / 7) + 1;
     }
 }

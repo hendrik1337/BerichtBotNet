@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BerichtBotNet", "BerichtBotNet\BerichtBotNet.csproj", "{34D545B4-4F61-4A5C-A346-1D508B7CC329}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BerichtBotNet_Tests", "BerichtBotNet_Tests\BerichtBotNet_Tests.csproj", "{DB9939BA-C214-4DFD-883C-E6604E14F74A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{34D545B4-4F61-4A5C-A346-1D508B7CC329}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34D545B4-4F61-4A5C-A346-1D508B7CC329}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34D545B4-4F61-4A5C-A346-1D508B7CC329}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
