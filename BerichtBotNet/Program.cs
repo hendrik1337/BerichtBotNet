@@ -23,10 +23,19 @@ class BerichtBotNet
     private IScheduler _scheduler = null!;
     private CancellationTokenSource _cancellationTokenSource;
 
+    private ApprenticeRepository _apprenticeRepository;
+    private GroupRepository _groupRepository;
+    private LogRepository _logRepository;
+    private SkippedWeeksRepository _weeksRepository;
+    
+    private BerichtsheftCommands _berichtsheftCommands;
+
     public static Task Main(string[] args) => new BerichtBotNet().MainAsync();
 
     public async Task MainAsync()
     {
+        InitializeCommandHandlers();
+        
         _cancellationTokenSource = new CancellationTokenSource();
 
         _client = new DiscordSocketClient();
@@ -64,11 +73,20 @@ class BerichtBotNet
         }*/
     }
 
+    private void InitializeCommandHandlers()
+    {
+        BerichtBotContext context = new BerichtBotContext();
+        _apprenticeRepository = new ApprenticeRepository(context);
+        _groupRepository = new GroupRepository(context);
+        _logRepository = new LogRepository(context);
+        _weeksRepository = new SkippedWeeksRepository(context);
+
+        _berichtsheftCommands = new BerichtsheftCommands(_apprenticeRepository, _weeksRepository, _logRepository);
+    }
+
     private async Task LoadTaskScheduler()
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        GroupRepository groupRepository = new GroupRepository(context);
-        List<Group> groups = groupRepository.GetAllGroups();
+        List<Group> groups = _groupRepository.GetAllGroups();
 
         // Load the Task Scheduler
         var builder = Host.CreateDefaultBuilder()
@@ -110,6 +128,10 @@ class BerichtBotNet
             .WithIdentity("updateApprentices", "group2")
             .Build();
 
+        updateApprentices.JobDataMap.Put("_apprenticeRepository", _apprenticeRepository);
+        updateApprentices.JobDataMap.Put("_groupRepository", _groupRepository);
+        updateApprentices.JobDataMap.Put("_logRepository", _logRepository);
+
 
         var updateApprenticesTrigger = TriggerBuilder.Create()
             .WithIdentity("myTrigger2", "group2")
@@ -141,7 +163,7 @@ class BerichtBotNet
                 GroupCommands.GroupCommandHandler(command);
                 break;
             case "wer":
-                BerichtsheftCommands.BerichtsheftCommandHandler(command);
+                _berichtsheftCommands.BerichtsheftCommandHandler(command);
                 break;
             case "woche":
                 WeekCommands.WeekCommandHandler(command);

@@ -8,7 +8,19 @@ namespace BerichtBotNet.Discord;
 
 public class BerichtsheftCommands
 {
-    public static void BerichtsheftCommandHandler(SocketSlashCommand command)
+    private readonly ApprenticeRepository _apprenticeRepository;
+    private readonly SkippedWeeksRepository _weeksRepository;
+    private readonly LogRepository _logRepository;
+
+    public BerichtsheftCommands(ApprenticeRepository apprenticeRepository, SkippedWeeksRepository weeksRepository,
+        LogRepository logRepository)
+    {
+        _apprenticeRepository = apprenticeRepository;
+        _weeksRepository = weeksRepository;
+        _logRepository = logRepository;
+    }
+
+    public void BerichtsheftCommandHandler(SocketSlashCommand command)
     {
         switch (command.Data.Name)
         {
@@ -18,12 +30,9 @@ public class BerichtsheftCommands
         }
     }
 
-    private static async void SendCurrentBerichtsheftWriter(SocketSlashCommand command)
+    private async void SendCurrentBerichtsheftWriter(SocketSlashCommand command)
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
-        Apprentice? requester = apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
-        SkippedWeeksRepository weeksRepository = new SkippedWeeksRepository(context);
+        Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
 
         if (requester == null)
         {
@@ -32,7 +41,7 @@ public class BerichtsheftCommands
             return;
         }
 
-        List<SkippedWeeks> skippedWeeksList = weeksRepository.GetByGroupId(int.Parse(requester.Group.Id.ToString()));
+        List<SkippedWeeks> skippedWeeksList = _weeksRepository.GetByGroupId(int.Parse(requester.Group.Id.ToString()));
         string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
         string berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
@@ -47,7 +56,8 @@ public class BerichtsheftCommands
             }
         }
 
-        Apprentice? currentBerichtsheftWriter = Berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository);
+        Apprentice? currentBerichtsheftWriter = berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
         if (currentBerichtsheftWriter == null)
         {

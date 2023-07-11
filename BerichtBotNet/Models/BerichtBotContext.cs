@@ -10,12 +10,22 @@ public class BerichtBotContext : DbContext
     public DbSet<Log> Logs { get; set; }
     public DbSet<SkippedWeeks> SkippedWeeks { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder contextOptionsBuilder)
+    public BerichtBotContext(DbContextOptions options) : base(options)
     {
-        // Connection String to Connect to the Database
-        contextOptionsBuilder
-            .UseLazyLoadingProxies()
-            .UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"));
+    }
+
+    public BerichtBotContext()
+    {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder
+                .UseLazyLoadingProxies()
+                .UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"));
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

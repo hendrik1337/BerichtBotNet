@@ -8,25 +8,30 @@ namespace BerichtBotNet.Helper;
 
 public class Berichtsheft
 {
-    public static Apprentice GetBerichtsheftWriterOfBerichtsheftNumber(int number, string groupName)
-    {
-        using BerichtBotContext context = new BerichtBotContext();
-        ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
+    private readonly ApprenticeRepository _apprenticeRepository;
+    private readonly LogRepository _logRepository;
 
-        var log = (from logs in context.Logs
+    public Berichtsheft(ApprenticeRepository apprenticeRepository, LogRepository logRepository)
+    {
+        _apprenticeRepository = apprenticeRepository;
+        _logRepository = logRepository;
+    }
+    public Apprentice GetBerichtsheftWriterOfBerichtsheftNumber(int number, string groupName)
+    {
+        var log = (from logs in _logRepository.GetAllLogs()
             where logs.BerichtheftNummer == number &&
-                  apprenticeRepository.GetApprentice(logs.ApprenticeId).Group.Name == groupName
+                  _apprenticeRepository.GetApprentice(logs.ApprenticeId).Group.Name == groupName
             select logs).ToList();
 
         if (log.FirstOrDefault() != null)
         {
-            return apprenticeRepository.GetApprentice(log.First().ApprenticeId);
+            return _apprenticeRepository.GetApprentice(log.First().ApprenticeId);
         }
 
         throw new ApprenticeNotFoundException();
     }
 
-    private static List<Apprentice> GetNonSkippedApprentices(List<Apprentice> apprentices)
+    private List<Apprentice> GetNonSkippedApprentices(List<Apprentice> apprentices)
     {
         List<Apprentice> filteredApprentices = new List<Apprentice>();
         foreach (var apprentice in apprentices)
@@ -41,13 +46,10 @@ public class Berichtsheft
         return filteredApprentices;
     }
     
-    public static Apprentice? GetCurrentBerichtsheftWriterOfGroup(int groupId)
+    public Apprentice? GetCurrentBerichtsheftWriterOfGroup(int groupId)
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        ApprenticeRepository apprenticeRepository = new ApprenticeRepository(context);
-        LogRepository logRepository = new LogRepository(context);
 
-        List<Apprentice> apprenticesOfGroup = apprenticeRepository.GetApprenticesInSameGroupByGroupId(groupId);
+        List<Apprentice> apprenticesOfGroup = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(groupId);
         apprenticesOfGroup = GetNonSkippedApprentices(apprenticesOfGroup);
 
         if (apprenticesOfGroup.FirstOrDefault() == null)
@@ -55,7 +57,7 @@ public class Berichtsheft
             throw new GroupIsEmptyException();
         }
 
-        var logs = logRepository.GetLogsOfGroup(groupId);
+        var logs = _logRepository.GetLogsOfGroup(groupId);
 
         // Returns First Apprentice if none have wrote before
         if (logs.FirstOrDefault() == null)
@@ -69,7 +71,7 @@ public class Berichtsheft
             bool hasWroteBefore = false;
             foreach (var log in logs)
             {
-                if (apprenticeRepository.GetApprentice(log.ApprenticeId).Id == apprentice.Id)
+                if (_apprenticeRepository.GetApprentice(log.ApprenticeId).Id == apprentice.Id)
                 {
                     hasWroteBefore = true;
                     break;
@@ -81,22 +83,20 @@ public class Berichtsheft
 
         // Checks which Apprentice hasn't wrote the longest and is not being skipped
         var filteredList = logs
-            .Where(log => apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount == 0) // Filter logs based on SkipCount
-            .GroupBy(log => apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
+            .Where(log => _apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount == 0) // Filter logs based on SkipCount
+            .GroupBy(log => _apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
             .Select(group => group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
             .ToList();
 
         var oldestEntry = filteredList.MinBy(log => log.Timestamp); // Get the first (oldest) log entry
 
-        return apprenticeRepository.GetApprentice(oldestEntry.ApprenticeId);
+        return _apprenticeRepository.GetApprentice(oldestEntry.ApprenticeId);
 
 
     }
 
-    public static void CurrentBerichsheftWriterWrote(int groupId)
+    public void CurrentBerichsheftWriterWrote(int groupId)
     {
-        using BerichtBotContext context = new BerichtBotContext();
-        LogRepository logRepository = new LogRepository(context);
         Apprentice currentApprentice = GetCurrentBerichtsheftWriterOfGroup(groupId);
 
         var log = new Log()
@@ -106,6 +106,6 @@ public class Berichtsheft
             BerichtheftNummer = 1337
         };
 
-        logRepository.CreateLog(log);
+        _logRepository.CreateLog(log);
     }
 }
