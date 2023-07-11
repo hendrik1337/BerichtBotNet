@@ -108,6 +108,7 @@ class BerichtBotNet
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
         {
+            Console.WriteLine($"Reminder Scheduled for {group.ReminderTime.ToLocalTime()}");
             // Define the job and tie it to our ReminderTasks class
             var reminderJob = JobBuilder.Create<ReminderTasks>()
                 .WithIdentity($"myGroupReminderJob{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
@@ -115,6 +116,10 @@ class BerichtBotNet
 
             reminderJob.JobDataMap.Put("discord", _client);
             reminderJob.JobDataMap.Put("groupId", group.Id);
+            reminderJob.JobDataMap.Put("groupRepository", _groupRepository);
+            reminderJob.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
+            reminderJob.JobDataMap.Put("logRepository", _logRepository);
+            reminderJob.JobDataMap.Put("weeksRepository", _weeksRepository);
 
             var reminderTrigger = TriggerBuilder.Create()
                 .WithIdentity($"myGroupReminderTrigger{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
@@ -134,9 +139,10 @@ class BerichtBotNet
             .WithIdentity("updateApprentices", "group2")
             .Build();
 
-        updateApprentices.JobDataMap.Put("_apprenticeRepository", _apprenticeRepository);
-        updateApprentices.JobDataMap.Put("_groupRepository", _groupRepository);
-        updateApprentices.JobDataMap.Put("_logRepository", _logRepository);
+        updateApprentices.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
+        updateApprentices.JobDataMap.Put("groupRepository", _groupRepository);
+        updateApprentices.JobDataMap.Put("logRepository", _logRepository);
+        updateApprentices.JobDataMap.Put("weeksRepository", _weeksRepository);
 
 
         var updateApprenticesTrigger = TriggerBuilder.Create()

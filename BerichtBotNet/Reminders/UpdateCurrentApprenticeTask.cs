@@ -13,12 +13,12 @@ public class UpdateCurrentApprenticeTask: IJob
         // This function will be executed every Sunday at 20:00
         var dataMap = context.MergedJobDataMap;
 
-        ApprenticeRepository _apprenticeRepository = (ApprenticeRepository)(dataMap)["_apprenticeRepository"];
-        GroupRepository groupRepository = (GroupRepository)(dataMap)["_groupRepository"];
-        if (groupRepository == null) throw new ArgumentNullException(nameof(groupRepository));
-        LogRepository logRepository = (LogRepository)(dataMap)["_logRepository"];
+        ApprenticeRepository apprenticeRepository = (ApprenticeRepository)(dataMap)["apprenticeRepository"];
+        GroupRepository groupRepository = (GroupRepository)(dataMap)["groupRepository"];
+        LogRepository logRepository = (LogRepository)(dataMap)["logRepository"];
+        SkippedWeeksRepository weeksRepository = (SkippedWeeksRepository)(dataMap)["weeksRepository"];
 
-        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, logRepository);
+        Berichtsheft berichtsheft = new Berichtsheft(apprenticeRepository, logRepository, weeksRepository);
 
         var allGroups = groupRepository.GetAllGroups();
         foreach (var group in allGroups)

@@ -36,7 +36,7 @@ namespace BerichtBotNet_Tests.Helper
             _logRepository = new LogRepository(_context);
             _weeksRepository = new SkippedWeeksRepository(_context);
 
-            _berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository);
+            _berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
 
             Group group = new Group
             {

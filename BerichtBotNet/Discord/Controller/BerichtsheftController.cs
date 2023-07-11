@@ -42,33 +42,8 @@ public class BerichtsheftController
             return;
         }
 
-        List<SkippedWeeks> skippedWeeksList = _weeksRepository.GetByGroupId(int.Parse(requester.Group.Id.ToString()));
-        string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
-        int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
-        string berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
-
-        foreach (var date in skippedWeeksList)
-        {
-            if (WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek) == currentCalendarWeek)
-            {
-                await command.RespondAsync(
-                    $"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.");
-            }
-        }
-
-        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository);
-
-        try
-        {
-            Apprentice? currentBerichtsheftWriter =
-                berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
-            await command.RespondAsync(
-                $"Azubi: {currentBerichtsheftWriter.Name} ist diese Woche {berichtsheftNumberPlusCw} dran.");
-        }
-        catch (GroupIsEmptyException ignored)
-        {
-            await command.RespondAsync(
-                $"Es wurde kein Azubi gefunden, der das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}");
-        }
+        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
+        
+        await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
     }
 }
