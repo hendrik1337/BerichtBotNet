@@ -29,18 +29,6 @@ public class ApprenticeView
         }
     }
 
-    public async void SendAddApprentice(SocketSlashCommand command)
-    {
-        // Build and send the add apprentice modal with default values from the command user
-        var addApprenticeModal = new ModalBuilder()
-            .WithTitle("Azubi Hinzufügen")
-            .WithCustomId("addApprenticeMenu")
-            .AddTextInput("Name", "azubi_name", value: command.User.Username)
-            .AddTextInput("Discord Id", "azubi_id", value: command.User.Id.ToString());
-
-        await command.RespondWithModalAsync(addApprenticeModal.Build());
-    }
-
     public async void SendAddApprentice(SocketMessageComponent modal, string groupId)
     {
         // Build and send the add apprentice modal with pre-filled values and a hidden group ID
