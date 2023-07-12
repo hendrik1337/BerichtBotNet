@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using BerichtBotNet.Data;
+using Discord;
 using Discord.WebSocket;
 
 namespace BerichtBotNet.Discord.View;
@@ -12,9 +13,25 @@ public class GroupView
             .AddTextInput("Name", "group_name", placeholder: "FI-22")
             .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022")
             .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30")
-            .AddTextInput("Discord Kanal Id (Standard aktueller Kanal)", "group_id", placeholder: "Channel für Wochentliche Erinnerungen",
+            .AddTextInput("Discord Kanal Id (Standard aktueller Kanal)", "group_id",
+                placeholder: "Channel für Wochentliche Erinnerungen",
                 required: true, value: channelId.ToString());
     }
+
+    public ModalBuilder GetEditGroupModal(Group group)
+    {
+        return new ModalBuilder()
+            .WithTitle("Gruppe Bearbeiten")
+            .AddTextInput("Name", "group_name", placeholder: "FI-22", value: group.Name)
+            .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022",
+                value: group.StartOfApprenticeship.ToString("d"))
+            .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30",
+                value: group.ReminderTime.ToLocalTime().ToString("t"))
+            .AddTextInput("Discord Kanal Id", "group_id",
+                placeholder: "Channel für Wochentliche Erinnerungen",
+                required: true, value: group.DiscordGroupId);
+    }
+
 
     // Adds group via direct slash command
     public async void AddGroup(SocketSlashCommand command)
@@ -30,5 +47,12 @@ public class GroupView
         var addApprenticeModal = GetAddGroupModal(component.Channel.Id);
         addApprenticeModal.WithCustomId("addGroupMenuAndApprentice");
         await component.RespondWithModalAsync(addApprenticeModal.Build());
+    }
+
+    public async void EditGroup(Group requesterGroup, SocketSlashCommand command)
+    {
+        var editModal = GetEditGroupModal(requesterGroup);
+        editModal.WithCustomId("editGroupMenu");
+        await command.RespondWithModalAsync(editModal.Build());
     }
 }

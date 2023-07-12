@@ -32,6 +32,7 @@ class BerichtBotNet
     private ApprenticeController _apprenticeController;
     private GroupController _groupController;
     private WeekController _weekController;
+    private HelpController _helpController;
 
     public static Task Main(string[] args) => new BerichtBotNet().MainAsync();
 
@@ -75,8 +76,9 @@ class BerichtBotNet
         _apprenticeController =
             new ApprenticeController(_apprenticeRepository, _groupRepository, _logRepository, _weeksRepository);
         _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
-        _groupController = new GroupController(_groupRepository);
+        _groupController = new GroupController(_groupRepository, _apprenticeRepository);
         _weekController = new WeekController(_apprenticeRepository, _weeksRepository);
+        _helpController = new HelpController();
     }
 
     private async Task LoadTaskScheduler()
@@ -168,6 +170,9 @@ class BerichtBotNet
                 break;
             case "woche":
                 _weekController.WeekCommandHandler(command);
+                break;
+            case "hilfe":
+                _helpController.HelpCommandHandler(command);
                 break;
         }
     }

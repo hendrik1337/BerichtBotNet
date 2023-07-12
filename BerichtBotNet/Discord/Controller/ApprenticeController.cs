@@ -122,9 +122,7 @@ public class ApprenticeController
 
         return true;
     }
-
-
-
+    
     private async void UnSkipApprentice(SocketSlashCommand command)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
@@ -315,15 +313,16 @@ public class ApprenticeController
     {
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
         if (!ValidateRequest(command, requester).Result) return;
-        
-        Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
-        if (nextBerichtsheftWriter is null)
+        try
+        {
+            Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+            _apprenticeView.SendSkipChoice(command, nextBerichtsheftWriter);
+        }
+        catch (GroupIsEmptyException ignored)
         {
             await command.RespondAsync("Es gibt keinen Azubi zum überspringen");
-            return;
         }
-
-        _apprenticeView.SendSkipChoice(command, nextBerichtsheftWriter);
+        
     }
 }

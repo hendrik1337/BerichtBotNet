@@ -159,7 +159,7 @@ public class Berichtsheft
             Apprentice? currentBerichtsheftWriter =
                 GetCurrentBerichtsheftWriterOfGroup(group.Id);
             return
-                $"Azubi: {currentBerichtsheftWriter.Name} muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
+                $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}> muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
         }
         catch (GroupIsEmptyException ignored)
         {

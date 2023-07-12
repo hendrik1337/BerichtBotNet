@@ -75,14 +75,16 @@ public class ApprenticeView
             .WithSelectMenu(menuBuilder);
         return builder;
     }
-    
+
     public async void SendApprenticeRemoveConfirmation(SocketSlashCommand command)
     {
         // Build the confirmation button
         var builder = new ComponentBuilder()
             .WithButton("Entfernen", "deleteApprentice", style: ButtonStyle.Danger);
 
-        await command.RespondAsync("Sicher, dass du deinen Account Entfernen möchtest?", components: builder.Build());
+        await command.RespondAsync(
+            "Sicher, dass du deinen Account Entfernen möchtest?\nAlle deine Log Einträge werden dabei gelöscht.",
+            components: builder.Build());
     }
 
     // Option ob der aktuell schreibende oder jemand anderes übersprungen werden soll
@@ -91,10 +93,10 @@ public class ApprenticeView
         var skipChoiceButtons = new ComponentBuilder()
             .WithButton(nextBerichtsheftWriter.Name, "nextWriterApprentice", style: ButtonStyle.Primary)
             .WithButton("Jemand anderes", "otherApprentice", style: ButtonStyle.Secondary);
-        
-        await command.RespondAsync("Wer soll übersprungen werden: ", components: skipChoiceButtons.Build() );
+
+        await command.RespondAsync("Wer soll übersprungen werden: ", components: skipChoiceButtons.Build());
     }
-    
+
     // Selector wer übersprungen werden soll
     public async void SendSkipDropdownChoice(SocketMessageComponent component, List<Apprentice> apprentices)
     {
@@ -106,13 +108,14 @@ public class ApprenticeView
         {
             menuBuilder.AddOption(apprentice.Name, apprentice.Id.ToString());
         }
+
         var builder = new ComponentBuilder()
             .WithSelectMenu(menuBuilder);
 
 
         await component.RespondAsync("", components: builder.Build());
     }
-    
+
     // Selector wer übersprungen werden soll
     public async void SendUnSkipDropdownChoice(SocketSlashCommand command, List<Apprentice> apprentices)
     {
@@ -124,6 +127,7 @@ public class ApprenticeView
         {
             menuBuilder.AddOption(apprentice.Name, apprentice.Id.ToString());
         }
+
         var builder = new ComponentBuilder()
             .WithSelectMenu(menuBuilder);
 

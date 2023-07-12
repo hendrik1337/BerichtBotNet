@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Discord;
 using Discord.Net;
 using Discord.WebSocket;
@@ -22,6 +23,7 @@ public class CommandCreator
         // await AzubiCommands();
         // await GroupCommands();
         // await BerichtsheftCommands();
+        await HelpCommands();
     }
 
     private async Task AzubiCommands()
@@ -95,9 +97,9 @@ public class CommandCreator
                 .AddOption("nummer", ApplicationCommandOptionType.Integer,
                     "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
                     isRequired: false)
-            .AddOption("datum", ApplicationCommandOptionType.String,
-                "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
-                isRequired: false))
+                .AddOption("datum", ApplicationCommandOptionType.String,
+                    "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
+                    isRequired: false))
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("reihenfolge")
                 .WithDescription("Gibt die Aktuelle Reihenfolge der Berichtsheftschreiber zurück")
@@ -144,6 +146,31 @@ public class CommandCreator
                 .WithName("anzeigen")
                 .WithDescription("Wochen, die übersprungen werden anzeigen.")
                 .WithType(ApplicationCommandOptionType.SubCommand)
+            );
+
+        try
+        {
+            await _client.Rest.CreateGlobalCommand(globalAzubiCommand.Build());
+        }
+        catch (HttpException exception)
+        {
+            var json = JsonConvert.SerializeObject(exception.ToString(), Formatting.Indented);
+            Console.WriteLine(json);
+        }
+    }
+
+    private async Task HelpCommands()
+    {
+        Console.WriteLine("Creating Help Commands");
+
+        var globalAzubiCommand = new SlashCommandBuilder()
+            .WithName("hilfe")
+            .WithDescription("Zeigt die Liste der verfügbaren Befehle an")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("befehl")
+                .WithDescription("Zeigt eine ausführliche Beschreibung für einen bestimmten Befehl an")
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .AddOption("name", ApplicationCommandOptionType.String, "Der Name des Befehls", isRequired: false)
             );
 
         try
