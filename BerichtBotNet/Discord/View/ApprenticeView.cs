@@ -124,4 +124,22 @@ public class ApprenticeView
 
         await component.RespondAsync("", components: builder.Build());
     }
+    
+    // Selector wer übersprungen werden soll
+    public async void SendUnSkipDropdownChoice(SocketSlashCommand command, List<Apprentice> apprentices)
+    {
+        var menuBuilder = new SelectMenuBuilder()
+            .WithPlaceholder("Wer soll nicht mehr übersprungen werden")
+            .WithCustomId("unSkipApprenticeSelector");
+
+        foreach (var apprentice in apprentices)
+        {
+            menuBuilder.AddOption(apprentice.Name, apprentice.Id.ToString());
+        }
+        var builder = new ComponentBuilder()
+            .WithSelectMenu(menuBuilder);
+
+
+        await command.RespondAsync("", components: builder.Build());
+    }
 }

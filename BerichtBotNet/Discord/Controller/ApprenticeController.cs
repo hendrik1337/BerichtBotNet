@@ -55,6 +55,7 @@ public class ApprenticeController
                 SkipApprentice(command);
                 break;
             case "un-skip":
+                UnSkipApprentice(command);
                 break;
         }
     }
@@ -97,12 +98,38 @@ public class ApprenticeController
                 ChooseApprenticeToSkip(component);
                 break;
             case "skipApprenticeSelector":
-                SkipSpecificApprentice(component);
+                SetSkipOfSpecificApprentice(component, true);
+                break;
+            case "unSkipApprenticeSelector":
+                SetSkipOfSpecificApprentice(component, false);
                 break;
         }
     }
+    
 
-    private async void SkipSpecificApprentice(SocketMessageComponent component)
+    private async void UnSkipApprentice(SocketSlashCommand command)
+    {
+        var requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
+
+        if (requester is null)
+        {
+            await command.RespondAsync(Constants.UserNotRegistered);
+            return;
+        }
+
+        var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
+        List<Apprentice> skippedApprentices = _berichtsheft.FilterApprenticesBySkipCount(apprentices, true);
+
+        if (skippedApprentices.Count == 0)
+        {
+            await command.RespondAsync("Es wird kein Azubi übersprungen");
+            return;
+        }
+        
+        _apprenticeView.SendUnSkipDropdownChoice(command, skippedApprentices);
+    }
+
+    private async void SetSkipOfSpecificApprentice(SocketMessageComponent component, bool skipped)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
 
@@ -114,9 +141,17 @@ public class ApprenticeController
         
         var apprenticeId = string.Join(", ", component.Data.Values);
         var apprenticeToSkip = _apprenticeRepository.GetApprentice(int.Parse(apprenticeId));
-        apprenticeToSkip.Skipped = true;
+        apprenticeToSkip.Skipped = skipped;
         _apprenticeRepository.UpdateApprentice(apprenticeToSkip);
-        await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird übersprungen.");
+
+        if (skipped)
+        {
+            await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird übersprungen.");
+        }
+        else
+        {
+            await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird nicht mehr übersprungen.");
+        }
         
         string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group);
         await component.Channel.SendMessageAsync(ans);
