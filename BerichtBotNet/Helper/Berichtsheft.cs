@@ -132,7 +132,8 @@ public class Berichtsheft
         {
             Apprentice = currentApprentice,
             Timestamp = DateTime.Now.ToUniversalTime(),
-            BerichtheftNummer = WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now)
+            BerichtheftNummer = WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now),
+            Group = currentApprentice.Group
         };
 
         _logRepository.CreateLog(log);

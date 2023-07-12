@@ -114,12 +114,6 @@ public class GroupController
         string groupId = components.First(x => x.CustomId == "group_id").Value;
         string groupStart = components.First(x => x.CustomId == "group_start").Value;
         string groupTime = components.First(x => x.CustomId == "group_time").Value;
-        string groupDay = components.First(x => x.CustomId == "group_day").Value;
-
-        DayOfWeek groupReminderWeekday;
-
-
-        groupReminderWeekday = GroupReminderWeekday(groupDay);
 
 
         DateTime groupReminderTime = DateTime.Parse(groupTime, Constants.CultureInfo).ToUniversalTime();
@@ -131,43 +125,7 @@ public class GroupController
             StartOfApprenticeship = dateTimeGroupStart,
             DiscordGroupId = groupId,
             ReminderTime = groupReminderTime,
-            ReminderWeekDay = groupReminderWeekday
         };
         return groupName;
     }
-
-    private DayOfWeek GroupReminderWeekday(string groupDay)
-    {
-        DayOfWeek groupReminderWeekday;
-        switch (groupDay.ToLower())
-        {
-            case "montag":
-                groupReminderWeekday = DayOfWeek.Monday;
-                break;
-            case "dienstag":
-                groupReminderWeekday = DayOfWeek.Tuesday;
-                break;
-            case "mittwoch":
-                groupReminderWeekday = DayOfWeek.Wednesday;
-                break;
-            case "donnerstag":
-                groupReminderWeekday = DayOfWeek.Thursday;
-                break;
-            case "freitag":
-                groupReminderWeekday = DayOfWeek.Friday;
-                break;
-            case "samstag":
-                groupReminderWeekday = DayOfWeek.Saturday;
-                break;
-            case "sonntag":
-                groupReminderWeekday = DayOfWeek.Sunday;
-                break;
-            default:
-                throw new InvalidWeekDayInputException();
-        }
-
-        return groupReminderWeekday;
-    }
-
-    
 }

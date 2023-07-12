@@ -21,5 +21,4 @@ public class Group
 
     // Only Hour and Minute of ReminderTime is used. Date is ignored
     public DateTime ReminderTime { get; set; }
-    public DayOfWeek ReminderWeekDay { get; set; }
 }

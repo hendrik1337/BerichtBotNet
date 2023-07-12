@@ -82,8 +82,7 @@ public class BerichtsheftController
         }
 
         Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
-
-
+        
         try
         {
             var value = command.Data.Options.First().Options.First().Value;
@@ -100,7 +99,6 @@ public class BerichtsheftController
         catch (InvalidOperationException ignored)
         {
             await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
-            berichtsheft.CurrentBerichsheftWriterWrote(requester.Group.Id);
         }
 
 

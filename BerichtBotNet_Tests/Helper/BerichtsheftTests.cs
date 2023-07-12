@@ -41,7 +41,7 @@ namespace BerichtBotNet_Tests.Helper
             Group group = new Group
             {
                 Name = "GroupName", DiscordGroupId = "1434q3q", StartOfApprenticeship = DateTime.Today,
-                ReminderTime = DateTime.Now, ReminderWeekDay = DayOfWeek.Monday, Id = 1
+                ReminderTime = DateTime.Now, Id = 1
             };
             _context.Groups.Add(group);
             _context.SaveChanges();
