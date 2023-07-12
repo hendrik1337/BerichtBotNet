@@ -1,3 +1,4 @@
+using System.Globalization;
 using BerichtBotNet.Data;
 using BerichtBotNet.Exceptions;
 using BerichtBotNet.Helper;
@@ -29,6 +30,7 @@ public class BerichtsheftController
                 SendCurrentBerichtsheftWriter(command);
                 break;
             case "reihenfolge":
+                SendBerichtsheftWriterReihenfolge(command);
                 break;
             case "log":
                 break;
@@ -47,7 +49,86 @@ public class BerichtsheftController
         }
 
         Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
-        
-        await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
+
+        if (command.Data.Options.First().Options.First().Value is null)
+        {
+            await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
+            return;
+        }
+
+        var value = command.Data.Options.First().Options.First().Value;
+        switch (command.Data.Options.First().Options.First().Name)
+        {
+            case "nummer":
+                var number = int.Parse(value.ToString());
+                try
+                {
+                    Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfNumber(requester.Group, number);
+                    string ans =
+                        $"Azubi: {apprentice.Name} musste das Berichtsheft {number} schreiben.";
+                    await command.RespondAsync(ans);
+                }
+                catch (BerichtsheftNotFound ignored)
+                {
+                    await command.RespondAsync($"Das Berichtsheft {number} wurde in der Datenbank nicht gefunden.");
+                }
+
+                break;
+            case "datum":
+                IFormatProvider provider = Constants.CultureInfo;
+                var isDate = DateTime.TryParse(value.ToString(), provider, DateTimeStyles.AssumeLocal,
+                    out DateTime date);
+                if (!isDate)
+                {
+                    await command.RespondAsync(
+                        $"Die Eingabe {value} konnte nicht in ein Datum umgewandelt werden.\nBitte gib ein Datum im Format DD/MM/YY(YY) an.");
+                    return;
+                }
+
+                string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
+
+                try
+                {
+                    Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfDate(requester.Group, date);
+                    string ans =
+                        $"Azubi: {apprentice.Name} musste das Berichtsheft {date.ToString("d")} ({dateCw}) schreiben.";
+                    await command.RespondAsync(ans);
+                }
+                catch (BerichtsheftNotFound ignored)
+                {
+                    await command.RespondAsync(
+                        $"Das Berichtsheft aus der Woche mit dem Datum: {date.ToString("d")} ({dateCw}) wurde in der Datenbank nicht gefunden.");
+                }
+
+                break;
+        }
+    }
+
+    private async void SendBerichtsheftWriterReihenfolge(SocketSlashCommand command)
+    {
+        Apprentice requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString())!;
+
+        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
+        var berichtsheftWriterOrder = berichtsheft.BerichtsheftOrder(requester.Group);
+
+        string ans = "Die Aktuelle Reihenfolge ist:\n";
+
+        foreach (var apprentice in berichtsheftWriterOrder.Item1)
+        {
+            ans += apprentice.Name;
+            ans += "\n";
+        }
+
+        if (berichtsheftWriterOrder.Item2.Count > 0)
+        {
+            ans += "\nAzubis, die übersprungen werden:\n";
+            foreach (var apprentice in berichtsheftWriterOrder.Item2)
+            {
+                ans += apprentice.Name;
+                ans += "\n";
+            }
+        }
+
+        await command.RespondAsync(ans);
     }
 }
