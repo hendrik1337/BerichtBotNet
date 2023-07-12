@@ -24,12 +24,12 @@ public class Berichtsheft
     {
         var log = (from logs in _logRepository.GetAllLogs()
             where logs.BerichtheftNummer == number &&
-                  _apprenticeRepository.GetApprentice(logs.ApprenticeId).Group.Name == groupName
+                  logs.Apprentice.Group.Name == groupName
             select logs).ToList();
 
         if (log.FirstOrDefault() != null)
         {
-            return _apprenticeRepository.GetApprentice(log.First().ApprenticeId);
+            return log.First().Apprentice;
         }
 
         throw new ApprenticeNotFoundException();
@@ -59,12 +59,12 @@ public class Berichtsheft
 
         var oldestEntry = filteredList.MinBy(log => log.Timestamp); // Get the first (oldest) log entry
 
-        return _apprenticeRepository.GetApprentice(oldestEntry.ApprenticeId);
+        return oldestEntry.Apprentice;
     }
 
     public List<Apprentice> GetApprenticesThatNeverWrote(List<Apprentice> apprenticesOfGroup, List<Log> logs)
     {
-        var apprenticeIdsThatWrote = logs.Select(log => log.ApprenticeId).Distinct().ToList();
+        var apprenticeIdsThatWrote = logs.Select(log => log.Apprentice.Id).Distinct().ToList();
         var apprenticesThatNeverWrote = apprenticesOfGroup.Where(apprentice => !apprenticeIdsThatWrote.Contains(apprentice.Id)).ToList();
 
         return apprenticesThatNeverWrote;
@@ -79,8 +79,8 @@ public class Berichtsheft
     {
         return logs
             .Where(log =>
-                _apprenticeRepository.GetApprentice(log.ApprenticeId).Skipped == skipped) // Filter logs based on SkipCount
-            .GroupBy(log => _apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
+                log.Apprentice.Skipped == skipped) // Filter logs based on SkipCount
+            .GroupBy(log => log.Apprentice.Id) // Group logs by Apprentice
             .Select(group =>
                 group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
             .ToList();
@@ -108,7 +108,7 @@ public class Berichtsheft
         // Auszubildende hinzufügen, die nicht übersprungen werden, aber schonmal ein Berichtsheft geschrieben haben, zur Reihenfolge.
         foreach (var log in FilterApprenticesFromLogBySkipped(logs, false))
         {
-            apprenticesOrderNotSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
+            apprenticesOrderNotSkipped.Add(log.Apprentice);
         }
 
         // Übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben haben, in die Reihenfolge aufnehmen.
@@ -118,7 +118,7 @@ public class Berichtsheft
         // Auszubildende hinzufügen, die übersprungen werden aber schonmal das Berichtsheft geschrieben haben, zur Reihenfolge.
         foreach (var log in FilterApprenticesFromLogBySkipped(logs, true))
         {
-            apprenticesOrderSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
+            apprenticesOrderSkipped.Add(log.Apprentice);
         }
         
         return (apprenticesOrderNotSkipped, apprenticesOrderSkipped);
@@ -130,7 +130,7 @@ public class Berichtsheft
 
         var log = new Log()
         {
-            ApprenticeId = currentApprentice.Id,
+            Apprentice = currentApprentice,
             Timestamp = DateTime.Now.ToUniversalTime(),
             BerichtheftNummer = WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now)
         };
@@ -176,7 +176,7 @@ public class Berichtsheft
             string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
             if (logCw.Equals(dateCw))
             {
-                return _apprenticeRepository.GetApprentice(log.ApprenticeId);
+                return log.Apprentice;
             }
         }
 
@@ -189,7 +189,7 @@ public class Berichtsheft
             where logs.BerichtheftNummer == number
             select logs;
 
-        if (log.FirstOrDefault() is not null) return _apprenticeRepository.GetApprentice(log.First().ApprenticeId);
+        if (log.FirstOrDefault() is not null) return log.First().Apprentice;
 
         throw new BerichtsheftNotFound();
     }

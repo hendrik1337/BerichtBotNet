@@ -64,7 +64,7 @@ public class BerichtsheftController
         {
             ans += $"Berichtsheft: {log.BerichtheftNummer} " +
                    $"({WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp)}) " +
-                   $"Azubi: {_apprenticeRepository.GetApprentice(log.ApprenticeId).Name}" +
+                   $"Azubi: {log.Apprentice.Name}" +
                    $"\n";
         }
 
@@ -83,22 +83,27 @@ public class BerichtsheftController
 
         Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
 
-        if (command.Data.Options.First().Options.First().Value is null)
+
+        try
+        {
+            var value = command.Data.Options.First().Options.First().Value;
+            switch (command.Data.Options.First().Options.First().Name)
+            {
+                case "nummer":
+                    await SendBerichtsheftWriterByNumber(command, value, berichtsheft, requester);
+                    break;
+                case "datum":
+                    await SendBerichtsheftWriterByDate(command, value, berichtsheft, requester);
+                    break;
+            }
+        }
+        catch (InvalidOperationException ignored)
         {
             await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
-            return;
+            berichtsheft.CurrentBerichsheftWriterWrote(requester.Group.Id);
         }
 
-        var value = command.Data.Options.First().Options.First().Value;
-        switch (command.Data.Options.First().Options.First().Name)
-        {
-            case "nummer":
-                await SendBerichtsheftWriterByNumber(command, value, berichtsheft, requester);
-                break;
-            case "datum":
-                await SendBerichtsheftWriterByDate(command, value, berichtsheft, requester);
-                break;
-        }
+
     }
 
     private static async Task SendBerichtsheftWriterByDate(SocketSlashCommand command, object value,

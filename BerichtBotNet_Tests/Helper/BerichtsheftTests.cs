@@ -65,7 +65,7 @@ namespace BerichtBotNet_Tests.Helper
         {
             // Arrange
             Apprentice expectedWriter = _apprenticeRepository.GetApprentice(1);//new Apprentice { Name = "John Doe", SkipCount = 0, Group = group, DiscordUserId = "1337", Id = 1};
-            Log log = new Log { ApprenticeId = expectedWriter.Id, BerichtheftNummer = 123 };
+            Log log = new Log { Apprentice = expectedWriter, BerichtheftNummer = 123 };
             _context.Logs.Add(log);
             _context.SaveChanges();
 
@@ -124,7 +124,7 @@ namespace BerichtBotNet_Tests.Helper
 
             // Assert
             // Check if a new log entry is added for the current writer
-            bool logEntryExists = _context.Logs.Any(log => log.ApprenticeId == currentWriter.Id);
+            bool logEntryExists = _context.Logs.Any(log => log.Apprentice.Id == currentWriter.Id);
             Assert.IsTrue(logEntryExists);
         }
         

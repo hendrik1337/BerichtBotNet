@@ -34,7 +34,7 @@ public class LogRepository
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(_context);
         var logs = GetAllLogs();
         List<Log> logsOfGroup = logs
-            .Where(log => apprenticeRepository.GetApprentice(log.ApprenticeId).Group.Id == groupId).ToList();
+            .Where(log => log.Apprentice.Group.Id == groupId).ToList();
 
         return logsOfGroup;
     }
@@ -44,7 +44,7 @@ public class LogRepository
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(_context);
         var logs = GetAllLogs();
         List<Log> logsOfGroup = logs
-            .Where(log => apprenticeRepository.GetApprentice(log.ApprenticeId).Group.Id == groupId)
+            .Where(log => log.Apprentice.Group.Id == groupId)
             .OrderByDescending(log => log.Timestamp)
             .Take(limit)
             .ToList();
