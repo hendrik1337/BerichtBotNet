@@ -105,17 +105,31 @@ public class ApprenticeController
                 break;
         }
     }
-    
+
+    private async Task<bool> ValidateRequest<T>(T command, Apprentice? requester)
+    {
+        if (requester is null)
+        {
+            if (command is SocketSlashCommand slashCommand)
+                await slashCommand.RespondAsync(Constants.UserNotRegistered);
+            else if (command is SocketMessageComponent messageComponent)
+                await messageComponent.RespondAsync(Constants.UserNotRegistered);
+            else if (command is SocketModal modal)
+                await modal.RespondAsync(Constants.UserNotRegistered);
+
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     private async void UnSkipApprentice(SocketSlashCommand command)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
+        if (!ValidateRequest(command, requester).Result) return;
 
-        if (requester is null)
-        {
-            await command.RespondAsync(Constants.UserNotRegistered);
-            return;
-        }
 
         var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
         List<Apprentice> skippedApprentices = _berichtsheft.FilterApprenticesBySkipCount(apprentices, true);
@@ -125,20 +139,15 @@ public class ApprenticeController
             await command.RespondAsync("Es wird kein Azubi übersprungen");
             return;
         }
-        
+
         _apprenticeView.SendUnSkipDropdownChoice(command, skippedApprentices);
     }
 
     private async void SetSkipOfSpecificApprentice(SocketMessageComponent component, bool skipped)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
+        if (!ValidateRequest(component, requester).Result) return;
 
-        if (requester is null)
-        {
-            await component.RespondAsync(Constants.UserNotRegistered);
-            return;
-        }
-        
         var apprenticeId = string.Join(", ", component.Data.Values);
         var apprenticeToSkip = _apprenticeRepository.GetApprentice(int.Parse(apprenticeId));
         apprenticeToSkip.Skipped = skipped;
@@ -152,7 +161,7 @@ public class ApprenticeController
         {
             await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird nicht mehr übersprungen.");
         }
-        
+
         string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group);
         await component.Channel.SendMessageAsync(ans);
     }
@@ -160,13 +169,8 @@ public class ApprenticeController
     private async void ChooseApprenticeToSkip(SocketMessageComponent component)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
+        if (!ValidateRequest(component, requester).Result) return;
 
-        if (requester is null)
-        {
-            await component.RespondAsync(Constants.UserNotRegistered);
-            return;
-        }
-        
         var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
         var nonSkippedApprentices = _berichtsheft.FilterApprenticesBySkipCount(apprentices, false);
 
@@ -175,17 +179,14 @@ public class ApprenticeController
             await component.RespondAsync("Es gibt keinen Azubi zum überspringen");
             return;
         }
+
         _apprenticeView.SendSkipDropdownChoice(component, nonSkippedApprentices);
     }
 
     private async void SkipNextWriter(SocketMessageComponent component)
     {
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
-        if (requester is null)
-        {
-            await component.RespondAsync(Constants.UserNotRegistered);
-            return;
-        }
+        if (!ValidateRequest(component, requester).Result) return;
 
         Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
         nextBerichtsheftWriter.Skipped = true;
@@ -239,22 +240,18 @@ public class ApprenticeController
         }
 
         // Retrieve the Apprentice from the database
-        Apprentice? apprentice = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
+        Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
 
-        if (apprentice == null)
-        {
-            await modal.RespondAsync("Benutzer konnte nicht gefunden werden.");
-            return;
-        }
+        if (!ValidateRequest(modal, requester).Result) return;
 
         // Update the Apprentice with the new values
-        apprentice.Name = username;
-        apprentice.DiscordUserId = discordId;
-        apprentice.Group = _groupRepository.GetGroupByName(group);
-        apprentice.Skipped = int.Parse(skip) == 1;
+        requester.Name = username;
+        requester.DiscordUserId = discordId;
+        requester.Group = _groupRepository.GetGroupByName(group);
+        requester.Skipped = int.Parse(skip) == 1;
 
         // Save the updated Apprentice to the database
-        _apprenticeRepository.UpdateApprentice(apprentice);
+        _apprenticeRepository.UpdateApprentice(requester);
 
         // Respond to the user
         string answer = $"Azubi: {username} wurde aktualisiert.";
@@ -300,29 +297,19 @@ public class ApprenticeController
     private async void RemoveApprentice(SocketMessageComponent component)
     {
         // Get the Apprentice based on the Discord ID
-        Apprentice? apprentice = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
+        Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
 
-        if (apprentice is not null)
-        {
-            // Delete the Apprentice from the database
-            _apprenticeRepository.DeleteApprentice(apprentice.Id);
-            await component.RespondAsync($"Der Account {apprentice.Name} wurde entfernet.");
-        }
-        else
-        {
-            await component.RespondAsync("Dein Account konnte nicht gefunden werden.");
-        }
+        if (!ValidateRequest(component, requester).Result) return;
+
+        _apprenticeRepository.DeleteApprentice(requester.Id);
+        await component.RespondAsync($"Der Account {requester.Name} wurde entfernet.");
     }
 
     private async void SkipApprentice(SocketSlashCommand command)
     {
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
-        if (requester is null)
-        {
-            await command.RespondAsync(Constants.UserNotRegistered);
-            return;
-        }
-
+        if (!ValidateRequest(command, requester).Result) return;
+        
         Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
         if (nextBerichtsheftWriter is null)
@@ -330,7 +317,7 @@ public class ApprenticeController
             await command.RespondAsync("Es gibt keinen Azubi zum überspringen");
             return;
         }
-        
+
         _apprenticeView.SendSkipChoice(command, nextBerichtsheftWriter);
     }
 }
