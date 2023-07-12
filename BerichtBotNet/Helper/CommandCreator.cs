@@ -107,7 +107,7 @@ public class CommandCreator
                 .WithName("log")
                 .WithDescription("Gibt die vergangenen Berichtsheftschreiber zurück")
                 .WithType(ApplicationCommandOptionType.SubCommand)
-                .AddOption("anzahl", ApplicationCommandOptionType.String,
+                .AddOption("anzahl", ApplicationCommandOptionType.Integer,
                     "Wie viele Logs sollen angezeigt werden (default=10)", isRequired: false)
                 .WithRequired(false));
 

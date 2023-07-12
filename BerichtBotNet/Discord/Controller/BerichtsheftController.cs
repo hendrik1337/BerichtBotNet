@@ -33,8 +33,42 @@ public class BerichtsheftController
                 SendBerichtsheftWriterReihenfolge(command);
                 break;
             case "log":
+                SendBerichtsheftLog(command);
                 break;
         }
+    }
+
+    private async void SendBerichtsheftLog(SocketSlashCommand command)
+    {
+        Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
+        if (requester is null)
+        {
+            await command.RespondAsync("Du wurdest nicht in der DB gefunden, bitte Registriere dich zuerst.");
+        }
+
+        int limit = 10;
+        try
+        {
+            limit = int.Parse(command.Data.Options.First().Options.First().Value.ToString());
+        }
+        catch (InvalidOperationException ignored)
+        {
+            
+        }
+
+        var logs = _logRepository.GetLogsOfGroup(requester.Group.Id, limit);
+
+        string ans = $"Die letzten {limit} Log Einträge:\n\n";
+
+        foreach (var log in logs)
+        {
+            ans += $"Berichtsheft: {log.BerichtheftNummer} " +
+                   $"({WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp)}) " +
+                   $"Azubi: {_apprenticeRepository.GetApprentice(log.ApprenticeId).Name}" +
+                   $"\n";
+        }
+
+        await command.RespondAsync(ans);
     }
 
     private async void SendCurrentBerichtsheftWriter(SocketSlashCommand command)
