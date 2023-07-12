@@ -62,18 +62,7 @@ class BerichtBotNet
 
 
         await LoadTaskScheduler();
-
-        // Block this task until the program is closed.
-        /*try
-        {
-            await Task.Delay(-1, _cancellationTokenSource.Token);
-        }
-        catch (TaskCanceledException)
-        {
-            // Task was canceled, perform cleanup here
-            await _scheduler.Shutdown();
-            await _client.StopAsync();
-        }*/
+        
     }
 
     private void InitializeCommandHandlers()
@@ -108,7 +97,6 @@ class BerichtBotNet
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
         {
-            Console.WriteLine($"Reminder Scheduled for {group.ReminderTime.ToLocalTime()}");
             // Define the job and tie it to our ReminderTasks class
             var reminderJob = JobBuilder.Create<ReminderTasks>()
                 .WithIdentity($"myGroupReminderJob{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")

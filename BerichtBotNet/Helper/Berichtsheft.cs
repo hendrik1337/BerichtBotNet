@@ -35,24 +35,10 @@ public class Berichtsheft
         throw new ApprenticeNotFoundException();
     }
 
-    private List<Apprentice> GetNonSkippedApprentices(List<Apprentice> apprentices)
-    {
-        List<Apprentice> filteredApprentices = new List<Apprentice>();
-        foreach (var apprentice in apprentices)
-        {
-            if (apprentice.SkipCount == 0)
-            {
-                filteredApprentices.Add(apprentice);
-            }
-        }
-
-        return filteredApprentices;
-    }
-
     public Apprentice? GetCurrentBerichtsheftWriterOfGroup(int groupId)
     {
         List<Apprentice> apprenticesOfGroup = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(groupId);
-        apprenticesOfGroup = GetNonSkippedApprentices(apprenticesOfGroup);
+        apprenticesOfGroup = FilterApprenticesBySkipCount(apprenticesOfGroup, false);
 
         if (apprenticesOfGroup.FirstOrDefault() == null)
         {
@@ -62,29 +48,14 @@ public class Berichtsheft
         var logs = _logRepository.GetLogsOfGroup(groupId);
 
         // Checks if every Apprentice has wrote before
-        foreach (var apprentice in GetNonSkippedApprenticesThatNeverWrote(apprenticesOfGroup))
+        var apprenticesThatNeverWrote = GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
+        if (apprenticesThatNeverWrote.FirstOrDefault() != null)
         {
-            bool hasWroteBefore = false;
-            foreach (var log in logs)
-            {
-                if (_apprenticeRepository.GetApprentice(log.ApprenticeId).Id == apprentice.Id)
-                {
-                    hasWroteBefore = true;
-                    break;
-                }
-            }
-
-            if (!hasWroteBefore && apprentice.SkipCount == 0) return apprentice;
+            return apprenticesThatNeverWrote.First();
         }
 
         // Checks which Apprentice hasn't wrote the longest and is not being skipped
-        var filteredList = logs
-            .Where(log =>
-                _apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount == 0) // Filter logs based on SkipCount
-            .GroupBy(log => _apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
-            .Select(group =>
-                group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
-            .ToList();
+        var filteredList = FilterApprenticesFromLogBySkipped(logs, true);
 
         var oldestEntry = filteredList.MinBy(log => log.Timestamp); // Get the first (oldest) log entry
 
@@ -93,71 +64,22 @@ public class Berichtsheft
 
     public List<Apprentice> GetApprenticesThatNeverWrote(List<Apprentice> apprenticesOfGroup, List<Log> logs)
     {
-        List<Apprentice> apprenticesThatNeverWrote = new List<Apprentice>();
-
-        // Checks if every Apprentice has wrote before
-        foreach (var apprentice in apprenticesOfGroup)
-        {
-            bool hasWroteBefore = false;
-            foreach (var log in logs)
-            {
-                if (_apprenticeRepository.GetApprentice(log.ApprenticeId).Id == apprentice.Id)
-                {
-                    hasWroteBefore = true;
-                    break;
-                }
-            }
-
-            if (!hasWroteBefore) apprenticesThatNeverWrote.Add(apprentice);
-        }
+        var apprenticeIdsThatWrote = logs.Select(log => log.ApprenticeId).Distinct().ToList();
+        var apprenticesThatNeverWrote = apprenticesOfGroup.Where(apprentice => !apprenticeIdsThatWrote.Contains(apprentice.Id)).ToList();
 
         return apprenticesThatNeverWrote;
     }
-
-    public List<Apprentice> GetNonSkippedApprenticesThatNeverWrote(List<Apprentice> apprenticesOfGroupThatNeverWrote)
+    
+    public List<Apprentice> FilterApprenticesBySkipCount(List<Apprentice> apprentices, bool skipped)
     {
-        List<Apprentice> apprenticesThatNeverWrote = new List<Apprentice>();
-        // Checks if every Apprentice has wrote before
-        foreach (var apprentice in apprenticesOfGroupThatNeverWrote)
-        {
-            if (apprentice.SkipCount == 0) apprenticesThatNeverWrote.Add(apprentice);
-        }
-
-        return apprenticesThatNeverWrote;
+        return apprentices.Where(a => a.Skipped == skipped).ToList();
     }
 
-    public List<Apprentice> GetSkippedApprenticesThatNeverWrote(List<Apprentice> apprenticesOfGroupThatNeverWrote)
-    {
-        List<Apprentice> apprenticesThatNeverWrote = new List<Apprentice>();
-
-        // Checks if every Apprentice has wrote before
-        foreach (var apprentice in apprenticesOfGroupThatNeverWrote)
-        {
-            if (apprentice.SkipCount == 1)
-            {
-                apprenticesThatNeverWrote.Add(apprentice);
-            }
-        }
-
-        return apprenticesThatNeverWrote;
-    }
-
-    public List<Log> GetNonSkippedApprenticesLog(List<Log> logs)
+    public List<Log> FilterApprenticesFromLogBySkipped(List<Log> logs, bool skipped)
     {
         return logs
             .Where(log =>
-                _apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount == 0) // Filter logs based on SkipCount
-            .GroupBy(log => _apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
-            .Select(group =>
-                group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
-            .ToList();
-    }
-
-    public List<Log> GetSkippedApprenticesLog(List<Log> logs)
-    {
-        return logs
-            .Where(log =>
-                _apprenticeRepository.GetApprentice(log.ApprenticeId).SkipCount != 0) // Filter logs based on SkipCount
+                _apprenticeRepository.GetApprentice(log.ApprenticeId).Skipped == skipped) // Filter logs based on SkipCount
             .GroupBy(log => _apprenticeRepository.GetApprentice(log.ApprenticeId)) // Group logs by Apprentice
             .Select(group =>
                 group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
@@ -181,20 +103,20 @@ public class Berichtsheft
 
         // Nicht übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben , in die Reihenfolge aufnehmen.
         apprenticesOrderNotSkipped = apprenticesOrderNotSkipped
-            .Concat(GetNonSkippedApprenticesThatNeverWrote(apprenticesOfGroupThatNeverWrote)).ToList();
+            .Concat(FilterApprenticesBySkipCount(apprenticesOfGroupThatNeverWrote, false)).ToList();
 
         // Auszubildende hinzufügen, die nicht übersprungen werden, aber schonmal ein Berichtsheft geschrieben haben, zur Reihenfolge.
-        foreach (var log in GetNonSkippedApprenticesLog(logs))
+        foreach (var log in FilterApprenticesFromLogBySkipped(logs, false))
         {
             apprenticesOrderNotSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
         }
 
         // Übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben haben, in die Reihenfolge aufnehmen.
-        apprenticesOrderSkipped = apprenticesOrderNotSkipped
-            .Concat(GetSkippedApprenticesThatNeverWrote(apprenticesOfGroupThatNeverWrote)).ToList();
+        apprenticesOrderSkipped = apprenticesOrderSkipped
+            .Concat(FilterApprenticesBySkipCount(apprenticesOfGroupThatNeverWrote, true)).ToList();
 
         // Auszubildende hinzufügen, die übersprungen werden aber schonmal das Berichtsheft geschrieben haben, zur Reihenfolge.
-        foreach (var log in GetSkippedApprenticesLog(logs))
+        foreach (var log in FilterApprenticesFromLogBySkipped(logs, true))
         {
             apprenticesOrderSkipped.Add(_apprenticeRepository.GetApprentice(log.ApprenticeId));
         }
@@ -210,7 +132,7 @@ public class Berichtsheft
         {
             ApprenticeId = currentApprentice.Id,
             Timestamp = DateTime.Now.ToUniversalTime(),
-            BerichtheftNummer = 1337
+            BerichtheftNummer = WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now)
         };
 
         _logRepository.CreateLog(log);
@@ -225,7 +147,7 @@ public class Berichtsheft
 
         foreach (var date in skippedWeeksList)
         {
-            if (WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek) == currentCalendarWeek)
+            if (WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek).Equals(currentCalendarWeek))
             {
                 return $"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.";
             }
@@ -242,5 +164,33 @@ public class Berichtsheft
         {
             return $"Es wurde keine Person gefunden, die das  Berichtsheft schreiben kann {berichtsheftNumberPlusCw}";
         }
+    }
+
+    public Apprentice GetBerichtsheftWriterOfDate(Group group, DateTime date)
+    {
+        var logs = _logRepository.GetLogsOfGroup(group.Id);
+
+        foreach (var log in logs)
+        {
+            string logCw = WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp);
+            string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
+            if (logCw.Equals(dateCw))
+            {
+                return _apprenticeRepository.GetApprentice(log.ApprenticeId);
+            }
+        }
+
+        throw new BerichtsheftNotFound();
+    }
+    public Apprentice GetBerichtsheftWriterOfNumber(Group group, int number)
+    {
+        var logList = _logRepository.GetLogsOfGroup(group.Id);
+        var log = from logs in logList
+            where logs.BerichtheftNummer == number
+            select logs;
+
+        if (log.FirstOrDefault() is not null) return _apprenticeRepository.GetApprentice(log.First().ApprenticeId);
+
+        throw new BerichtsheftNotFound();
     }
 }

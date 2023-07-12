@@ -92,9 +92,12 @@ public class CommandCreator
                 .WithDescription("Welche Berichtsheftnummer? (optional)")
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithRequired(false)
-                .AddOption("nummer", ApplicationCommandOptionType.String,
+                .AddOption("nummer", ApplicationCommandOptionType.Integer,
                     "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
-                    isRequired: false))
+                    isRequired: false)
+            .AddOption("datum", ApplicationCommandOptionType.String,
+                "Gibt an wer jetzt oder in der Vergangenheit das Berichtsheft geschrieben hat.",
+                isRequired: false))
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("reihenfolge")
                 .WithDescription("Gibt die Aktuelle Reihenfolge der Berichtsheftschreiber zurück")

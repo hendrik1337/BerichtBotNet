@@ -94,7 +94,7 @@ public class ApprenticeController
             Name = username,
             DiscordUserId = discordId,
             Group = _groupRepository.GetGroup(int.Parse(group)),
-            SkipCount = 0
+            Skipped = false
         };
 
         // Save Apprentice to the database
@@ -122,7 +122,7 @@ public class ApprenticeController
         }
 
         // Retrieve the Apprentice from the database
-        Apprentice apprentice = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
+        Apprentice? apprentice = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
 
         if (apprentice == null)
         {
@@ -134,7 +134,7 @@ public class ApprenticeController
         apprentice.Name = username;
         apprentice.DiscordUserId = discordId;
         apprentice.Group = _groupRepository.GetGroupByName(group);
-        apprentice.SkipCount = int.Parse(skip);
+        apprentice.Skipped = int.Parse(skip) == 1;
 
         // Save the updated Apprentice to the database
         _apprenticeRepository.UpdateApprentice(apprentice);

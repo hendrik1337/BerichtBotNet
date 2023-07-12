@@ -46,7 +46,7 @@ namespace BerichtBotNet_Tests.Helper
             _context.Groups.Add(group);
             _context.SaveChanges();
             _context.Apprentices.Add(new Apprentice
-                { Name = "John Doe", SkipCount = 0, DiscordUserId = "1337", Group = group, Id = 1});
+                { Name = "John Doe", Skipped = false, DiscordUserId = "1337", Group = group, Id = 1});
             _context.SaveChanges();
 
             // Initialize and seed the in-memory database for testing
@@ -127,5 +127,7 @@ namespace BerichtBotNet_Tests.Helper
             bool logEntryExists = _context.Logs.Any(log => log.ApprenticeId == currentWriter.Id);
             Assert.IsTrue(logEntryExists);
         }
+        
+        
     }
 }

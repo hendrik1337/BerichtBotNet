@@ -44,8 +44,8 @@ namespace BerichtBotNet.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("SkipCount")
-                        .HasColumnType("integer");
+                    b.Property<bool>("Skipped")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

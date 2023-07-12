@@ -9,5 +9,5 @@ public class Apprentice
     public string Name { get; set; } = null!;
     public string DiscordUserId { get; set; } = null!;
     public virtual Group Group { get; set; } = null!;
-    public int SkipCount { get; set; }
+    public bool Skipped { get; set; }
 }

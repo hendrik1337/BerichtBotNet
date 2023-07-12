@@ -18,7 +18,7 @@ public class ApprenticeView
                 .AddTextInput("Discord Id", "azubi_id", value: user.DiscordUserId)
                 .AddTextInput("Gruppe", "azubi_group", value: user.Group?.Name,
                     placeholder: "Stelle sicher, dass die Gruppe existiert.")
-                .AddTextInput("Überspringen", "azubi_skip", value: user.SkipCount.ToString(),
+                .AddTextInput("Überspringen", "azubi_skip", value: user.Skipped.ToString(),
                     placeholder: "0 = Wird nicht übersprungen, 1 = wird übersprungen");
 
             await command.RespondWithModalAsync(addApprenticeModal.Build());
