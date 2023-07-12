@@ -31,18 +31,6 @@ public class LogRepository
 
     public List<Log> GetLogsOfGroup(int groupId)
     {
-        // ApprenticeRepository apprenticeRepository = new ApprenticeRepository(_context);
-        // var logs = GetAllLogs();
-        // List<Log> logsOfGroup = new List<Log>();
-        // foreach (var log in logs)
-        // {
-        //     if (apprenticeRepository.GetApprentice(log.ApprenticeId).Group.Id == groupId)
-        //     {
-        //         logsOfGroup.Add(log);
-        //     }
-        // }
-        //
-        // return logsOfGroup;
         ApprenticeRepository apprenticeRepository = new ApprenticeRepository(_context);
         var logs = GetAllLogs();
         List<Log> logsOfGroup = logs

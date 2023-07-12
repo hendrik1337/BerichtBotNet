@@ -96,4 +96,32 @@ public class ApprenticeView
 
         await command.RespondAsync("Sicher, dass du deinen Account Entfernen möchtest?", components: builder.Build());
     }
+
+    // Option ob der aktuell schreibende oder jemand anderes übersprungen werden soll
+    public async void SendSkipChoice(SocketSlashCommand command, Apprentice nextBerichtsheftWriter)
+    {
+        var skipChoiceButtons = new ComponentBuilder()
+            .WithButton(nextBerichtsheftWriter.Name, "nextWriterApprentice", style: ButtonStyle.Primary)
+            .WithButton("Jemand anderes", "otherApprentice", style: ButtonStyle.Secondary);
+        
+        await command.RespondAsync("Wer soll übersprungen werden: ", components: skipChoiceButtons.Build() );
+    }
+    
+    // Selector wer übersprungen werden soll
+    public async void SendSkipDropdownChoice(SocketMessageComponent component, List<Apprentice> apprentices)
+    {
+        var menuBuilder = new SelectMenuBuilder()
+            .WithPlaceholder("Wer soll übersprungen werden")
+            .WithCustomId("skipApprenticeSelector");
+
+        foreach (var apprentice in apprentices)
+        {
+            menuBuilder.AddOption(apprentice.Name, apprentice.Id.ToString());
+        }
+        var builder = new ComponentBuilder()
+            .WithSelectMenu(menuBuilder);
+
+
+        await component.RespondAsync("", components: builder.Build());
+    }
 }

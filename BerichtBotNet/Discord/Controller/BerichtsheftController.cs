@@ -43,7 +43,7 @@ public class BerichtsheftController
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
         if (requester is null)
         {
-            await command.RespondAsync("Du wurdest nicht in der DB gefunden, bitte Registriere dich zuerst.");
+            await command.RespondAsync(Constants.UserNotRegistered);
         }
 
         int limit = 10;
@@ -77,8 +77,7 @@ public class BerichtsheftController
 
         if (requester == null)
         {
-            await command.RespondAsync(
-                $"Du wurdest nicht in der Datenbank gefunden. Registriere dich mit '/azubi hinzufügen'");
+            await command.RespondAsync(Constants.UserNotRegistered);
             return;
         }
 

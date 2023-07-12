@@ -27,7 +27,7 @@ class BerichtBotNet
     private GroupRepository _groupRepository;
     private LogRepository _logRepository;
     private SkippedWeeksRepository _weeksRepository;
-    
+
     private BerichtsheftController _berichtsheftController;
     private ApprenticeController _apprenticeController;
     private GroupController _groupController;
@@ -38,7 +38,7 @@ class BerichtBotNet
     public async Task MainAsync()
     {
         InitializeCommandHandlers();
-        
+
         _cancellationTokenSource = new CancellationTokenSource();
 
         _client = new DiscordSocketClient();
@@ -62,7 +62,6 @@ class BerichtBotNet
 
 
         await LoadTaskScheduler();
-        
     }
 
     private void InitializeCommandHandlers()
@@ -73,7 +72,8 @@ class BerichtBotNet
         _logRepository = new LogRepository(context);
         _weeksRepository = new SkippedWeeksRepository(context);
 
-        _apprenticeController = new ApprenticeController(_apprenticeRepository, _groupRepository);
+        _apprenticeController =
+            new ApprenticeController(_apprenticeRepository, _groupRepository, _logRepository, _weeksRepository);
         _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
         _groupController = new GroupController(_groupRepository);
         _weekController = new WeekController(_apprenticeRepository, _weeksRepository);

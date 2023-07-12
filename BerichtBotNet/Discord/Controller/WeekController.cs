@@ -45,7 +45,7 @@ public class WeekController
 
             if (user == null)
             {
-                await command.RespondAsync("Du wurdest nicht in der DB gefunden. Bitte Registriere dich zuerst");
+                await command.RespondAsync(Constants.UserNotRegistered);
                 return;
             }
             

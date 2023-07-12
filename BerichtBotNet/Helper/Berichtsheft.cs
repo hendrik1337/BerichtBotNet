@@ -55,7 +55,7 @@ public class Berichtsheft
         }
 
         // Checks which Apprentice hasn't wrote the longest and is not being skipped
-        var filteredList = FilterApprenticesFromLogBySkipped(logs, true);
+        var filteredList = FilterApprenticesFromLogBySkipped(logs, false);
 
         var oldestEntry = filteredList.MinBy(log => log.Timestamp); // Get the first (oldest) log entry
 
