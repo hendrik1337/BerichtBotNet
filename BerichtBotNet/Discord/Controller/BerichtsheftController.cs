@@ -60,47 +60,57 @@ public class BerichtsheftController
         switch (command.Data.Options.First().Options.First().Name)
         {
             case "nummer":
-                var number = int.Parse(value.ToString());
-                try
-                {
-                    Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfNumber(requester.Group, number);
-                    string ans =
-                        $"Azubi: {apprentice.Name} musste das Berichtsheft {number} schreiben.";
-                    await command.RespondAsync(ans);
-                }
-                catch (BerichtsheftNotFound ignored)
-                {
-                    await command.RespondAsync($"Das Berichtsheft {number} wurde in der Datenbank nicht gefunden.");
-                }
-
+                await SendBerichtsheftWriterByNumber(command, value, berichtsheft, requester);
                 break;
             case "datum":
-                IFormatProvider provider = Constants.CultureInfo;
-                var isDate = DateTime.TryParse(value.ToString(), provider, DateTimeStyles.AssumeLocal,
-                    out DateTime date);
-                if (!isDate)
-                {
-                    await command.RespondAsync(
-                        $"Die Eingabe {value} konnte nicht in ein Datum umgewandelt werden.\nBitte gib ein Datum im Format DD/MM/YY(YY) an.");
-                    return;
-                }
-
-                string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
-
-                try
-                {
-                    Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfDate(requester.Group, date);
-                    string ans =
-                        $"Azubi: {apprentice.Name} musste das Berichtsheft {date.ToString("d")} ({dateCw}) schreiben.";
-                    await command.RespondAsync(ans);
-                }
-                catch (BerichtsheftNotFound ignored)
-                {
-                    await command.RespondAsync(
-                        $"Das Berichtsheft aus der Woche mit dem Datum: {date.ToString("d")} ({dateCw}) wurde in der Datenbank nicht gefunden.");
-                }
-
+                await SendBerichtsheftWriterByDate(command, value, berichtsheft, requester);
                 break;
+        }
+    }
+
+    private static async Task SendBerichtsheftWriterByDate(SocketSlashCommand command, object value,
+        Berichtsheft berichtsheft, Apprentice requester)
+    {
+        IFormatProvider provider = Constants.CultureInfo;
+        var isDate = DateTime.TryParse(value.ToString(), provider, DateTimeStyles.AssumeLocal,
+            out DateTime date);
+        if (!isDate)
+        {
+            await command.RespondAsync(
+                $"Die Eingabe {value} konnte nicht in ein Datum umgewandelt werden.\nBitte gib ein Datum im Format DD/MM/YY(YY) an.");
+            return;
+        }
+
+        string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
+
+        try
+        {
+            Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfDate(requester.Group, date);
+            string ans =
+                $"Azubi: {apprentice.Name} musste das Berichtsheft {date:d} ({dateCw}) schreiben.";
+            await command.RespondAsync(ans);
+        }
+        catch (BerichtsheftNotFound ignored)
+        {
+            await command.RespondAsync(
+                $"Das Berichtsheft aus der Woche mit dem Datum: {date:d} ({dateCw}) wurde in der Datenbank nicht gefunden.");
+        }
+    }
+
+    private static async Task SendBerichtsheftWriterByNumber(SocketSlashCommand command, object value,
+        Berichtsheft berichtsheft, Apprentice requester)
+    {
+        var number = int.Parse(value.ToString()!);
+        try
+        {
+            Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfNumber(requester.Group, number);
+            string ans =
+                $"Azubi: {apprentice.Name} musste das Berichtsheft {number} schreiben.";
+            await command.RespondAsync(ans);
+        }
+        catch (BerichtsheftNotFound ignored)
+        {
+            await command.RespondAsync($"Das Berichtsheft {number} wurde in der Datenbank nicht gefunden.");
         }
     }
 
