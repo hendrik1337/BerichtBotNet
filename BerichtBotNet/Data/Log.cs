@@ -6,10 +6,8 @@
 public class Log
 {
     public int Id { get; set; }
-
-    // public int ApprenticeId { get; set; }
     public virtual Apprentice Apprentice { get; set; }
     public int BerichtheftNummer { get; set; }
     public DateTime Timestamp { get; set; }
-    // public virtual Group Group { get; set; } = null!;
+    public virtual Group Group { get; set; } = null!;
 }
