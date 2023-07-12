@@ -206,6 +206,12 @@ public class ApprenticeController
         string discordId = components.First(x => x.CustomId == "azubi_id").Value;
         string group = components.First(x => x.CustomId == "azubi_group").Value;
 
+        if (_apprenticeRepository.GetApprenticeByDiscordId(discordId) is not null)
+        {
+            await modal.RespondAsync("Registrieren Fehlgeschlagen.\nEs gibt bereite einen Nutzer mit dieser Discord ID.");
+            return;
+        }
+
         // Create Apprentice entity
         Apprentice apprentice = new Apprentice
         {
