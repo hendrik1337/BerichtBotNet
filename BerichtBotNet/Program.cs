@@ -196,6 +196,10 @@ class BerichtBotNet
         {
             _apprenticeController.ApprenticeMessageComponentHandler(component);
         }
+        else if (component.Data.CustomId.Contains("Group"))
+        {
+            _groupController.GroupMessageComponentHandler(component);
+        }
     }
 
     public async Task StopBot()

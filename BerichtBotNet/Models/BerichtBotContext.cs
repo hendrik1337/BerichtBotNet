@@ -33,5 +33,6 @@ public class BerichtBotContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Apprentice>().HasIndex(u => u.DiscordUserId).IsUnique();
+        modelBuilder.Entity<Group>().HasIndex(u => u.Name).IsUnique();
     }
 }

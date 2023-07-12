@@ -23,7 +23,7 @@ public class CommandCreator
         // await AzubiCommands();
         // await GroupCommands();
         // await BerichtsheftCommands();
-        await HelpCommands();
+        // await HelpCommands();
     }
 
     private async Task AzubiCommands()
@@ -170,6 +170,7 @@ public class CommandCreator
                 .WithName("befehl")
                 .WithDescription("Zeigt eine ausführliche Beschreibung für einen bestimmten Befehl an")
                 .WithType(ApplicationCommandOptionType.SubCommand)
+                .WithRequired(false)
                 .AddOption("name", ApplicationCommandOptionType.String, "Der Name des Befehls", isRequired: false)
             );
 

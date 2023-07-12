@@ -55,4 +55,15 @@ public class GroupView
         editModal.WithCustomId("editGroupMenu");
         await command.RespondWithModalAsync(editModal.Build());
     }
+    
+    public async void SendApprenticeRemoveConfirmation(SocketSlashCommand command, string groupName)
+    {
+        // Build the confirmation button
+        var builder = new ComponentBuilder()
+            .WithButton("Entfernen", "deleteGroup", style: ButtonStyle.Danger);
+
+        await command.RespondAsync(
+            $"Sicher, dass du die Gruppe {groupName} Entfernen möchtest?\n Dein Account wird dabei auch gelöscht.",
+            components: builder.Build());
+    }
 }

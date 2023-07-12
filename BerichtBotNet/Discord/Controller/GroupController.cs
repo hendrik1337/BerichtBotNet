@@ -38,6 +38,7 @@ public class GroupController
                 EditGroup(command);
                 break;
             case "remove":
+                DeleteGroup(command);
                 break;
         }
     }
@@ -56,6 +57,34 @@ public class GroupController
                 await EditGroupFromModal(modal);
                 break;
         }
+    }
+    
+    public async void GroupMessageComponentHandler(SocketMessageComponent component)
+    {
+        switch (component.Data.CustomId)
+        {
+            case "deleteGroup":
+                RemoveGroupAndLastApprentice(component);
+                break;
+        }
+    }
+
+    private async void RemoveGroupAndLastApprentice(SocketMessageComponent component)
+    {
+        var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
+        var groupName = requester.Group.Name;
+        if (!ValidateRequest(component, requester).Result) return;
+
+        var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
+        if (apprentices.Count > 1)
+        {
+            await component.RespondAsync(
+                $"Die Gruppe: {requester.Group.Name} kann nicht gelöscht werden.\nEs sind noch andere Azubis in der Gruppe.");
+            return;
+        }
+        
+        _groupRepository.DeleteGroup(requester.Group.Id);
+        component.RespondAsync($"Die Gruppe: {groupName} wurde gelöscht");
     }
 
 
@@ -162,7 +191,7 @@ public class GroupController
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
         var oldGroup = requester.Group;
-        var groupName = CreateGroupFromModalWithoutId(modal, out var group);
+        var _ = CreateGroupFromModalWithoutId(modal, out var group);
 
         oldGroup.Name = group.Name;
         oldGroup.DiscordGroupId = group.DiscordGroupId;
@@ -172,5 +201,21 @@ public class GroupController
         _groupRepository.UpdateGroup(oldGroup);
 
         await modal.RespondAsync($"Gruppe: {group.Name} wurde aktualisiert");
+    }
+
+    private async Task DeleteGroup(SocketSlashCommand command)
+    {
+        var requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
+        if (!ValidateRequest(command, requester).Result) return;
+
+        var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
+        if (apprentices.Count > 1)
+        {
+            await command.RespondAsync(
+                $"Die Gruppe: {requester.Group.Name} kann nicht gelöscht werden.\nEs sind noch andere Azubis in der Gruppe.");
+            return;
+        }
+        
+        _groupView.SendApprenticeRemoveConfirmation(command, requester.Group.Name);
     }
 }
