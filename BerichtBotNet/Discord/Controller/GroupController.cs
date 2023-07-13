@@ -1,14 +1,11 @@
 ﻿using BerichtBotNet.Data;
 using BerichtBotNet.Discord.View;
 using BerichtBotNet.Exceptions;
-using BerichtBotNet.Models;
 using BerichtBotNet.Repositories;
-using Discord;
 using Discord.WebSocket;
-using Microsoft.VisualBasic;
 using Constants = BerichtBotNet.Helper.Constants;
 
-namespace BerichtBotNet.Discord;
+namespace BerichtBotNet.Discord.Controller;
 
 public class GroupController
 {

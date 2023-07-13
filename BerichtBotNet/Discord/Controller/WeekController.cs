@@ -1,10 +1,9 @@
 ﻿using BerichtBotNet.Data;
 using BerichtBotNet.Helper;
-using BerichtBotNet.Models;
 using BerichtBotNet.Repositories;
 using Discord.WebSocket;
 
-namespace BerichtBotNet.Discord;
+namespace BerichtBotNet.Discord.Controller;
 
 public class WeekController
 {

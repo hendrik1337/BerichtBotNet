@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Discord.WebSocket;
 
-namespace BerichtBotNet.Discord;
+namespace BerichtBotNet.Discord.Controller;
 
 public class HelpController
 {

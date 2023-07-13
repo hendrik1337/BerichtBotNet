@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using BerichtBotNet.Data;
 using BerichtBotNet.Discord;
+using BerichtBotNet.Discord.Controller;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Models;
 using BerichtBotNet.Reminders;
