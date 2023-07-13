@@ -171,8 +171,17 @@ public class CommandCreator
                 .WithDescription("Zeigt eine ausführliche Beschreibung für einen bestimmten Befehl an")
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithRequired(false)
-                .AddOption("name", ApplicationCommandOptionType.String, "Der Name des Befehls", isRequired: false)
-            );
+                .AddOption("name", ApplicationCommandOptionType.String, "Der Name des Befehls", isRequired: false))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("befehle")
+                .WithDescription("Zeigt eine allgemeine Beschreibung der Befehle an")
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .WithRequired(false))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("bug")
+                .WithDescription("Bug / Verbesserungsvorschläge")
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .WithRequired(false));
 
         try
         {

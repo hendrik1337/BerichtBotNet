@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using BerichtBotNet.Data;
 using BerichtBotNet.Discord;
 using BerichtBotNet.Helper;
@@ -8,10 +6,8 @@ using BerichtBotNet.Models;
 using BerichtBotNet.Reminders;
 using BerichtBotNet.Repositories;
 using Discord;
-using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
 using Quartz;
 
