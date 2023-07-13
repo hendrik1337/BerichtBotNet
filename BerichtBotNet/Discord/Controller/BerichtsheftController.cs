@@ -58,15 +58,26 @@ public class BerichtsheftController
 
         var logs = _logRepository.GetLogsOfGroup(requester.Group.Id, limit);
 
-        string ans = $"Die letzten {limit} Log Einträge:\n\n";
+        string ans = "";
 
-        foreach (var log in logs)
+        if (logs.Count > 0)
         {
-            ans += $"Berichtsheft: {log.BerichtheftNummer} " +
-                   $"({WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp)}) " +
-                   $"Azubi: {log.Apprentice.Name}" +
-                   $"\n";
+            ans += $"Die letzten {logs.Count} Log Einträge:\n\n";
+            
+            foreach (var log in logs)
+            {
+                ans += $"Berichtsheft: {log.BerichtheftNummer} " +
+                       $"({WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp)}) " +
+                       $"Azubi: {log.Apprentice.Name}" +
+                       $"\n";
+            }
         }
+        else
+        {
+            ans += "Es sind keine Log Einträge vorhanden";
+        }
+
+        
 
         await command.RespondAsync(ans);
     }
