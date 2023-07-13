@@ -147,7 +147,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
             // Assert
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result.Count, Is.EqualTo(1));
             Assert.Contains(apprentice2, result);
         }
 
@@ -165,7 +165,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
             // Assert
-            Assert.AreEqual(3, result.Count);
+            Assert.That(result.Count, Is.EqualTo(3));
             Assert.Contains(apprentice1, result);
             Assert.Contains(apprentice2, result);
             Assert.Contains(apprentice3, result);
@@ -199,7 +199,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.FilterApprenticesBySkipCount(apprentices, skipped);
 
             // Assert
-            Assert.AreEqual(2, result.Count);
+            Assert.That(result.Count, Is.EqualTo(2));
             Assert.Contains(apprentice1, result);
             Assert.Contains(apprentice3, result);
         }
@@ -255,7 +255,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.FilterApprenticesFromLogBySkipped(logs, skipped);
 
             // Assert
-            Assert.AreEqual(2, result.Count);
+            Assert.That(result.Count, Is.EqualTo(2));
             Assert.Contains(log1, result);
             Assert.Contains(log3, result);
         }
@@ -334,11 +334,11 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.BerichtsheftOrder(group);
 
             // Assert
-            Assert.AreEqual(2, result.Item1.Count);
+            Assert.That(result.Item1.Count, Is.EqualTo(2));
             Assert.Contains(apprentice1, result.Item1);
             Assert.Contains(apprentice3, result.Item1);
 
-            Assert.AreEqual(2, result.Item2.Count);
+            Assert.That(result.Item2.Count, Is.EqualTo(2));
             Assert.Contains(apprentice2, result.Item2);
             Assert.Contains(apprentice4, result.Item2);
         }
@@ -362,8 +362,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
-            Assert.AreEqual($"Azubi: John Doe muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.",
-                result);
+            Assert.That(result, Is.EqualTo($"Azubi: John Doe muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben."));
         }
 
         [Test]
@@ -386,8 +385,7 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
-            Assert.AreEqual($"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.",
-                result);
+            Assert.That(result, Is.EqualTo($"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden."));
         }
 
         [Test]
@@ -407,9 +405,8 @@ namespace BerichtBotNet_Tests.Helper
             var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
-            Assert.AreEqual(
-                $"Es wurde keine Person gefunden, die das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}",
-                result);
+            Assert.That(
+                result, Is.EqualTo($"Es wurde keine Person gefunden, die das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}"));
         }
     }
 }
