@@ -29,7 +29,7 @@ public class ApprenticeView
         }
     }
 
-    public async void SendAddApprentice(SocketMessageComponent modal, string groupId)
+    public async void SendAddApprentice(SocketMessageComponent modal, string groupName)
     {
         // Build and send the add apprentice modal with pre-filled values and a hidden group ID
         var addApprenticeModal = new ModalBuilder()
@@ -37,7 +37,7 @@ public class ApprenticeView
             .WithCustomId("addApprenticeMenu")
             .AddTextInput("Name", "azubi_name", value: modal.User.Username)
             .AddTextInput("Discord Id", "azubi_id", value: modal.User.Id.ToString())
-            .AddTextInput("Group Id, NICHT ÄNDERN", "azubi_group", value: groupId);
+            .AddTextInput("Group Id, NICHT ÄNDERN", "azubi_group", value: groupName);
 
         await modal.RespondWithModalAsync(addApprenticeModal.Build());
     }

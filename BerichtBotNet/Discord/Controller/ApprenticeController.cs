@@ -202,7 +202,7 @@ public class ApprenticeController
         List<SocketMessageComponentData> components = modal.Data.Components.ToList();
         string username = components.First(x => x.CustomId == "azubi_name").Value;
         string discordId = components.First(x => x.CustomId == "azubi_id").Value;
-        string group = components.First(x => x.CustomId == "azubi_group").Value;
+        string groupName = components.First(x => x.CustomId == "azubi_group").Value;
 
         if (_apprenticeRepository.GetApprenticeByDiscordId(discordId) is not null)
         {
@@ -215,7 +215,7 @@ public class ApprenticeController
         {
             Name = username,
             DiscordUserId = discordId,
-            Group = _groupRepository.GetGroup(int.Parse(group)),
+            Group = _groupRepository.GetGroupByName(groupName),
             Skipped = false
         };
 
@@ -279,7 +279,8 @@ public class ApprenticeController
         else
         {
             // Send the add apprentice modal with the selected group
-            _apprenticeView.SendAddApprentice(component, component.Data.Values.First());
+            Group group = _groupRepository.GetGroup(int.Parse(component.Data.Values.First()));
+            _apprenticeView.SendAddApprentice(component, group.Name);
         }
     }
 
