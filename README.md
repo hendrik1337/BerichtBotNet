@@ -1,55 +1,82 @@
 # BerichtBotNet
-BerichtBot in C# / Dotnet
 
-## Discord Bot: Berichtsheft-Erinnerung
-
-Dies ist ein Discord-Bot, der in C# entwickelt wurde, um Azubis dabei zu unterstützen, sich an das Schreiben ihres Berichtshefts in einer bestimmten Woche zu erinnern. Der Bot sendet Benachrichtigungen an die Benutzer und hilft dabei, den Prozess der Berichtsheftführung zu vereinfachen.
+### Ein Discord-Bot, der in C# entwickelt wurde, um Auszubildende beim Schreiben ihres Berichtshefts in einer bestimmten Woche zu unterstützen.
 Features
 
     Erinnerungen: Der Bot sendet automatisch Benachrichtigungen an die registrierten Benutzer, um sie an das Schreiben ihres Berichtshefts zu erinnern.
-    Wochenplan: Der Bot berücksichtigt den Wochenplan der Azubis und sendet die Erinnerungen entsprechend.
+    Wochenplan: Der Bot berücksichtigt den Wochenplan der Auszubildenden und sendet die Erinnerungen entsprechend.
     Konfiguration: Die Erinnerungszeit und andere Einstellungen können über einfache Befehle konfiguriert werden.
-    Benutzerfreundlich: Der Bot bietet eine einfache Schnittstelle für die Registrierung, Konfiguration und Abmeldung von Erinnerungen.
+    Benutzerfreundlichkeit: Der Bot bietet eine einfache Schnittstelle für die Registrierung, Konfiguration und Abmeldung von Erinnerungen.
 
 ### Installation
 ##### Direkt
+
     Installiere .NET Core.
-    Erstelle eine PostgreSQL Datenbank
-    Klonen das Repository .
-    Navigieren zum Verzeichnis des Projekts und führen den folgenden Befehl aus, um die erforderlichen Abhängigkeiten zu installieren:
-    Setze den 'DiscordToken' und 'PostgreSQLBerichtBotConnection' in den Umgebungsvariablen    
-    Führe 'dotnet restore' aus um Abhängigkeiten zu laden
-    Starte den Bot mit 'dotnet run'
+    Erstelle eine PostgreSQL-Datenbank.
+    Klone das Repository.
+    Navigiere zum Verzeichnis des Projekts und führe den folgenden Befehl aus, um die erforderlichen Abhängigkeiten zu installieren:
+    dotnet restore
+    Setze die Umgebungsvariablen DiscordToken und PostgreSQLBerichtBotConnection.
+    Starte den Bot mit dem Befehl dotnet run.
 
-##### Docker
-    docker-compose
-    Klone das Repository und erstelle die docker-compose.yaml Datei im Ordner mit dem Dockerfile aus
-    Passe die Daten an in der docker-compose an
-    Führe den Befehl docker-compose up -d im Selben Ordner aus
-```
-version: '3.1'
+#### Docker
 
-services:
-  db:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: example
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data
-    
-  berichtbotnet:
-    build:
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    environment:
-      DiscordToken: Dein_Discord_Token
-      PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=example
-    depends_on: 
-      - db
+    Installiere Docker.
+    Klone das Repository und erstelle die docker-compose.yaml Datei im Ordner mit dem Dockerfile.
+    Passe die Daten in der docker-compose.yaml an.
+    Führe den Befehl docker-compose up -d imselben Ordner aus.
 
-volumes:
-  db:
-```
+### Verwendung
+
+Um den Bot zu verwenden, registriere dich zunächst mit dem Befehl /azubi hinzufügen. Erstelle eine Gruppe und gebe dann deinen Discord-Namen und ID. Der Bot sendet dir dann automatisch Benachrichtigungen an die angegebene Zeit, um dich an das Schreiben deines Berichtshefts zu erinnern.
+
+Du kannst die Erinnerungszeit und andere Einstellungen über die Befehle /gruppe bearbeiten konfigurieren.
+
+Um dich von Erinnerungen abzumelden, kannst du den Befehl /azubi löschen verwenden.
+
+#### Befehle
+
+##### Der Bot unterstützt die folgenden Befehle:
+
+    /azubi - Befehle zur Verwaltung von Azubis
+    /gruppe - Befehle zur Verwaltung von Gruppen
+    /berichtsheft - Befehle für die Berichtshefte
+    /woche - Befehle zum Überspringen von Wochen
+    /hilfe - Befehle zum Anzeigen der Anleitung
+
+##### Befehle zur Verwaltung von Azubis
+
+    /azubi hinzufügen - Fügt einen Azubi hinzu
+    /azubi bearbeiten - Bearbeitet einen Azubi
+    /azubi löschen - Entfernt einen Azubi
+    /azubi überspringen - Überspringt einen Azubi
+    /azubi überspringen-entfernen - Entfernt die Überspringung für einen Azubi
+
+##### Befehle zur Verwaltung von Gruppen
+
+    /gruppe hinzufügen - Fügt eine Gruppe hinzu
+    /gruppe bearbeiten - Bearbeitet eine Gruppe
+    /gruppe löschen - Entfernt eine Gruppe
+
+##### Befehle für die Berichtshefte
+
+    /berichtsheft wer - Zeigt Informationen zum Berichtsheft einer bestimmten Nummer an
+    /berichtsheft reihenfolge - Zeigt die aktuelle Reihenfolge der Berichtsheftschreiber an
+    /berichtsheft log - Zeigt vergangene Berichtsheftschreiber an
+
+##### Befehle zum Überspringen von Wochen
+
+    /woche überspringen - Überspringt eine oder mehrere Wochen
+    /woche entfernen - Setzt das Überspringen einer Woche zurück
+    /woche anzeigen - Zeigt die übersprungenen Wochen an
+
+##### Befehle zum Anzeigen der Anleitung
+
+    /hilfe befehl - Zeigt eine ausführliche Beschreibung für einen bestimmten Befehl an
+    /hilfe befehle - Zeigt eine allgemeine Beschreibung der Befehle an
+    /hilfe bug - Bug / Verbesserungsvorschläge
+
+### Feedback
+
+Bitte teile mir dein Feedback zu dem Bot mit, indem du eine Issue einreichst.
+
