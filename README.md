@@ -22,9 +22,9 @@ Features
 #### Docker
 
     Installiere Docker.
-    Klone das Repository und erstelle die docker-compose.yaml Datei im Ordner mit dem Dockerfile.
+    Klone das Repository.
     Passe die Daten in der docker-compose.yaml an.
-    Führe den Befehl docker-compose up -d imselben Ordner aus.
+    Starte den Bot mit den Befehl docker-compose up -d.
 
 ### Verwendung
 
