@@ -16,7 +16,7 @@ public class Group
     public DateTime StartOfApprenticeship
     {
         get => TimeZoneInfo.ConvertTimeFromUtc(_startOfApprenticeship, TimeZoneInfo.Local);
-        set => _startOfApprenticeship = value;
+        set => _startOfApprenticeship = value.ToUniversalTime();
     }
 
     // Only Hour and Minute of ReminderTime is used. Date is ignored
