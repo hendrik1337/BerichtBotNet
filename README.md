@@ -22,4 +22,34 @@ Features
     Starte den Bot mit 'dotnet run'
 
 ##### Docker
-...
+    docker-compose
+    Klone das Repository und erstelle die docker-compose.yaml Datei im Ordner mit dem Dockerfile aus
+    Passe die Daten an in der docker-compose an
+    Führe den Befehl docker-compose up -d im Selben Ordner aus
+```
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    
+  berichtbotnet:
+    build:
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      DiscordToken: Dein_Discord_Token
+      PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=example
+    depends_on: 
+      - db
+
+volumes:
+  db:
+```
