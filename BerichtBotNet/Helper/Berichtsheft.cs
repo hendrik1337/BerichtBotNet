@@ -172,7 +172,7 @@ public class Berichtsheft
         }
         catch (GroupIsEmptyException ignored)
         {
-            return $"Es wurde keine Person gefunden, die das  Berichtsheft schreiben kann {berichtsheftNumberPlusCw}";
+            return $"Es wurde keine Person gefunden, die das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}";
         }
     }
 
