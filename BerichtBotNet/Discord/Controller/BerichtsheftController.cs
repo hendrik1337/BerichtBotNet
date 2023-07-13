@@ -109,7 +109,7 @@ public class BerichtsheftController
         }
         catch (InvalidOperationException ignored)
         {
-            await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group));
+            await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group, true));
         }
 
 

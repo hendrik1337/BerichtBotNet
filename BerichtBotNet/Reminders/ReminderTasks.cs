@@ -38,6 +38,6 @@ public class ReminderTasks : IJob
     private async Task SendReminder(Group group, DiscordSocketClient client, Berichtsheft berichtsheft)
     {
         var channel = await client.GetChannelAsync(ulong.Parse(group.DiscordGroupId)) as IMessageChannel;
-        await channel!.SendMessageAsync(berichtsheft.CurrentBerichtsheftWriterMessage(group));
+        await channel!.SendMessageAsync(berichtsheft.CurrentBerichtsheftWriterMessage(group, true));
     }
 }

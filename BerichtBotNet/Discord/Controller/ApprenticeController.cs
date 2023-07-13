@@ -146,6 +146,8 @@ public class ApprenticeController
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
         if (!ValidateRequest(component, requester).Result) return;
 
+        Apprentice currentBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+
         var apprenticeId = string.Join(", ", component.Data.Values);
         var apprenticeToSkip = _apprenticeRepository.GetApprentice(int.Parse(apprenticeId));
         apprenticeToSkip.Skipped = skipped;
@@ -160,7 +162,18 @@ public class ApprenticeController
             await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird nicht mehr übersprungen.");
         }
 
-        string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group);
+        string ans;
+
+        if (currentBerichtsheftWriter.Id == _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id).Id)
+        {
+            ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, false);
+        }
+        else
+        {
+            ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, true);
+        }
+
+        
         await component.Channel.SendMessageAsync(ans);
     }
 
@@ -192,7 +205,7 @@ public class ApprenticeController
 
         await component.RespondAsync($"Azubi: {nextBerichtsheftWriter.Name} wird übersprungen.");
 
-        string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(nextBerichtsheftWriter.Group);
+        string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(nextBerichtsheftWriter.Group, true);
         await component.Channel.SendMessageAsync(ans);
     }
 

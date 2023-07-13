@@ -139,7 +139,7 @@ public class Berichtsheft
         _logRepository.CreateLog(log);
     }
 
-    public string CurrentBerichtsheftWriterMessage(Group group)
+    public string CurrentBerichtsheftWriterMessage(Group group, bool mention)
     {
         List<SkippedWeeks> skippedWeeksList = _weeksRepository.GetByGroupId(int.Parse(group.Id.ToString()));
         string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
@@ -158,8 +158,17 @@ public class Berichtsheft
         {
             Apprentice? currentBerichtsheftWriter =
                 GetCurrentBerichtsheftWriterOfGroup(group.Id);
-            return
-                $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}> muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
+            if (mention)
+            {
+                return
+                    $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}> muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
+            }
+            else
+            {
+                return
+                    $"Azubi: {currentBerichtsheftWriter.Name} muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
+            }
+           
         }
         catch (GroupIsEmptyException ignored)
         {
