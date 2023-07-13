@@ -18,12 +18,12 @@ public class UpdateCurrentApprenticeTask: IJob
         LogRepository logRepository = (LogRepository)(dataMap)["logRepository"];
         SkippedWeeksRepository weeksRepository = (SkippedWeeksRepository)(dataMap)["weeksRepository"];
 
-        Berichtsheft berichtsheft = new Berichtsheft(apprenticeRepository, logRepository, weeksRepository);
+        BerichtsheftService berichtsheftService = new BerichtsheftService(apprenticeRepository, logRepository, weeksRepository);
 
         var allGroups = groupRepository.GetAllGroups();
         foreach (var group in allGroups)
         {
-            berichtsheft.CurrentBerichsheftWriterWrote(group.Id);
+            berichtsheftService.CurrentBerichsheftWriterWrote(group.Id);
         }
         Console.WriteLine("Current Berichtsheft writer has been updated in every group!");
         return Task.CompletedTask;

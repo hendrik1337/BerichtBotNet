@@ -26,18 +26,18 @@ public class ReminderTasks : IJob
         LogRepository logRepository = (LogRepository)(dataMap)["logRepository"];
         SkippedWeeksRepository weeksRepository = (SkippedWeeksRepository)(dataMap)["weeksRepository"];
 
-        Berichtsheft berichtsheft = new Berichtsheft(apprenticeRepository, logRepository, weeksRepository);
+        BerichtsheftService berichtsheftService = new BerichtsheftService(apprenticeRepository, logRepository, weeksRepository);
 
         var group = groupRepository.GetGroup(groupId);
         if (group is null) return;
 
         Console.WriteLine($"Sending Reminder for group {group.Name}");
-        await SendReminder(group, client, berichtsheft);
+        await SendReminder(group, client, berichtsheftService);
     }
 
-    private async Task SendReminder(Group group, DiscordSocketClient client, Berichtsheft berichtsheft)
+    private async Task SendReminder(Group group, DiscordSocketClient client, BerichtsheftService berichtsheftService)
     {
         var channel = await client.GetChannelAsync(ulong.Parse(group.DiscordGroupId)) as IMessageChannel;
-        await channel!.SendMessageAsync(berichtsheft.CurrentBerichtsheftWriterMessage(group, true));
+        await channel!.SendMessageAsync(berichtsheftService.CurrentBerichtsheftWriterMessage(group, true));
     }
 }

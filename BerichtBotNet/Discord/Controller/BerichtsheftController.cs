@@ -91,7 +91,7 @@ public class BerichtsheftController
             return;
         }
 
-        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
+        BerichtsheftService berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
         
         try
         {
@@ -99,23 +99,23 @@ public class BerichtsheftController
             switch (command.Data.Options.First().Options.First().Name)
             {
                 case "nummer":
-                    await SendBerichtsheftWriterByNumber(command, value, berichtsheft, requester);
+                    await SendBerichtsheftWriterByNumber(command, value, berichtsheftService, requester);
                     break;
                 case "datum":
-                    await SendBerichtsheftWriterByDate(command, value, berichtsheft, requester);
+                    await SendBerichtsheftWriterByDate(command, value, berichtsheftService, requester);
                     break;
             }
         }
         catch (InvalidOperationException ignored)
         {
-            await command.RespondAsync(berichtsheft.CurrentBerichtsheftWriterMessage(requester.Group, true));
+            await command.RespondAsync(berichtsheftService.CurrentBerichtsheftWriterMessage(requester.Group, true));
         }
 
 
     }
 
     private static async Task SendBerichtsheftWriterByDate(SocketSlashCommand command, object value,
-        Berichtsheft berichtsheft, Apprentice requester)
+        BerichtsheftService berichtsheftService, Apprentice requester)
     {
         IFormatProvider provider = Constants.CultureInfo;
         var isDate = DateTime.TryParse(value.ToString(), provider, DateTimeStyles.AssumeLocal,
@@ -131,7 +131,7 @@ public class BerichtsheftController
 
         try
         {
-            Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfDate(requester.Group, date);
+            Apprentice apprentice = berichtsheftService.GetBerichtsheftWriterOfDate(requester.Group, date);
             string ans =
                 $"Azubi: {apprentice.Name} musste das Berichtsheft {date:d} ({dateCw}) schreiben.";
             await command.RespondAsync(ans);
@@ -144,12 +144,12 @@ public class BerichtsheftController
     }
 
     private static async Task SendBerichtsheftWriterByNumber(SocketSlashCommand command, object value,
-        Berichtsheft berichtsheft, Apprentice requester)
+        BerichtsheftService berichtsheftService, Apprentice requester)
     {
         var number = int.Parse(value.ToString()!);
         try
         {
-            Apprentice apprentice = berichtsheft.GetBerichtsheftWriterOfNumber(requester.Group, number);
+            Apprentice apprentice = berichtsheftService.GetBerichtsheftWriterOfNumber(requester.Group, number);
             string ans =
                 $"Azubi: {apprentice.Name} musste das Berichtsheft {number} schreiben.";
             await command.RespondAsync(ans);
@@ -164,8 +164,8 @@ public class BerichtsheftController
     {
         Apprentice requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString())!;
 
-        Berichtsheft berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
-        var berichtsheftWriterOrder = berichtsheft.BerichtsheftOrder(requester.Group);
+        BerichtsheftService berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+        var berichtsheftWriterOrder = berichtsheftService.BerichtsheftOrder(requester.Group);
 
         string ans = "Die Aktuelle Reihenfolge ist:\n";
 

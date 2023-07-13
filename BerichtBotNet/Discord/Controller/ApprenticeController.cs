@@ -13,7 +13,7 @@ public class ApprenticeController
     private readonly GroupRepository _groupRepository;
     private readonly LogRepository _logRepository;
     private readonly SkippedWeeksRepository _weeksRepository;
-    private Berichtsheft _berichtsheft;
+    private BerichtsheftService _berichtsheftService;
 
     private readonly ApprenticeView _apprenticeView;
     private readonly GroupView _groupView;
@@ -29,7 +29,7 @@ public class ApprenticeController
         _apprenticeView = new ApprenticeView();
         _groupView = new GroupView();
 
-        _berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
+        _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class ApprenticeController
 
 
         var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
-        List<Apprentice> skippedApprentices = _berichtsheft.FilterApprenticesBySkipCount(apprentices, true);
+        List<Apprentice> skippedApprentices = _berichtsheftService.FilterApprenticesBySkipCount(apprentices, true);
 
         if (skippedApprentices.Count == 0)
         {
@@ -144,7 +144,7 @@ public class ApprenticeController
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
         if (!ValidateRequest(component, requester).Result) return;
 
-        Apprentice currentBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        Apprentice currentBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
 
         var apprenticeId = string.Join(", ", component.Data.Values);
         var apprenticeToSkip = _apprenticeRepository.GetApprentice(int.Parse(apprenticeId));
@@ -162,13 +162,13 @@ public class ApprenticeController
 
         string ans;
 
-        if (currentBerichtsheftWriter.Id == _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id).Id)
+        if (currentBerichtsheftWriter.Id == _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id).Id)
         {
-            ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, false);
+            ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, false);
         }
         else
         {
-            ans = _berichtsheft.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, true);
+            ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, true);
         }
 
         
@@ -181,7 +181,7 @@ public class ApprenticeController
         if (!ValidateRequest(component, requester).Result) return;
 
         var apprentices = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(requester.Group.Id);
-        var nonSkippedApprentices = _berichtsheft.FilterApprenticesBySkipCount(apprentices, false);
+        var nonSkippedApprentices = _berichtsheftService.FilterApprenticesBySkipCount(apprentices, false);
 
         if (nonSkippedApprentices.Count == 0)
         {
@@ -197,13 +197,13 @@ public class ApprenticeController
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
         if (!ValidateRequest(component, requester).Result) return;
 
-        Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        Apprentice? nextBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
         nextBerichtsheftWriter.Skipped = true;
         _apprenticeRepository.UpdateApprentice(nextBerichtsheftWriter);
 
         await component.RespondAsync($"Azubi: {nextBerichtsheftWriter.Name} wird übersprungen.");
 
-        string ans = _berichtsheft.CurrentBerichtsheftWriterMessage(nextBerichtsheftWriter.Group, true);
+        string ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(nextBerichtsheftWriter.Group, true);
         await component.Channel.SendMessageAsync(ans);
     }
 
@@ -328,7 +328,7 @@ public class ApprenticeController
 
         try
         {
-            Apprentice? nextBerichtsheftWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+            Apprentice? nextBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
             _apprenticeView.SendSkipChoice(command, nextBerichtsheftWriter);
         }
         catch (GroupIsEmptyException ignored)

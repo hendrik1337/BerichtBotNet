@@ -20,7 +20,7 @@ namespace BerichtBotNet_Tests.Helper
         private LogRepository _logRepository;
         private SkippedWeeksRepository _weeksRepository;
 
-        private Berichtsheft _berichtsheft;
+        private BerichtsheftService _berichtsheftService;
 
         [SetUp]
         public void SetUp()
@@ -36,7 +36,7 @@ namespace BerichtBotNet_Tests.Helper
             _logRepository = new LogRepository(_context);
             _weeksRepository = new SkippedWeeksRepository(_context);
 
-            _berichtsheft = new Berichtsheft(_apprenticeRepository, _logRepository, _weeksRepository);
+            _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
 
             Group group = new Group
             {
@@ -73,7 +73,7 @@ namespace BerichtBotNet_Tests.Helper
 
             // Act
             Apprentice actualWriter =
-                _berichtsheft.GetBerichtsheftWriterOfBerichtsheftNumber(log.BerichtheftNummer, "GroupName");
+                _berichtsheftService.GetBerichtsheftWriterOfBerichtsheftNumber(log.BerichtheftNummer, "GroupName");
 
             // Assert
             Assert.That(actualWriter, Is.EqualTo(expectedWriter));
@@ -87,7 +87,7 @@ namespace BerichtBotNet_Tests.Helper
 
             // Act & Assert
             Assert.Throws<ApprenticeNotFoundException>(() =>
-                _berichtsheft.GetBerichtsheftWriterOfBerichtsheftNumber(berichtsheftNumber, "GroupName"));
+                _berichtsheftService.GetBerichtsheftWriterOfBerichtsheftNumber(berichtsheftNumber, "GroupName"));
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace BerichtBotNet_Tests.Helper
             // Set up the apprentices in the group in the database
 
             // Act
-            Apprentice actualWriter = _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(expectedWriter.Group.Id);
+            Apprentice actualWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(expectedWriter.Group.Id);
 
             // Assert
             Assert.That(actualWriter, Is.EqualTo(expectedWriter));
@@ -111,7 +111,7 @@ namespace BerichtBotNet_Tests.Helper
             // Set up an empty group in the database
 
             // Act & Assert
-            Assert.Throws<GroupIsEmptyException>(() => _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(1337));
+            Assert.Throws<GroupIsEmptyException>(() => _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(1337));
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace BerichtBotNet_Tests.Helper
             // Set up the current writer in the database
 
             // Act
-            _berichtsheft.CurrentBerichsheftWriterWrote(currentWriter.Group.Id);
+            _berichtsheftService.CurrentBerichsheftWriterWrote(currentWriter.Group.Id);
 
             // Assert
             // Check if a new log entry is added for the current writer
@@ -144,7 +144,7 @@ namespace BerichtBotNet_Tests.Helper
             var logs = new List<Log> { log1, log2 };
 
             // Act
-            var result = _berichtsheft.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
+            var result = _berichtsheftService.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(1));
@@ -162,7 +162,7 @@ namespace BerichtBotNet_Tests.Helper
             var logs = new List<Log>();
 
             // Act
-            var result = _berichtsheft.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
+            var result = _berichtsheftService.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(3));
@@ -179,7 +179,7 @@ namespace BerichtBotNet_Tests.Helper
             var logs = new List<Log>();
 
             // Act
-            var result = _berichtsheft.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
+            var result = _berichtsheftService.GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
             // Assert
             Assert.IsEmpty(result);
@@ -196,7 +196,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesBySkipCount(apprentices, skipped);
+            var result = _berichtsheftService.FilterApprenticesBySkipCount(apprentices, skipped);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(2));
@@ -215,7 +215,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesBySkipCount(apprentices, skipped);
+            var result = _berichtsheftService.FilterApprenticesBySkipCount(apprentices, skipped);
 
             // Assert
             Assert.IsEmpty(result);
@@ -229,7 +229,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesBySkipCount(apprentices, skipped);
+            var result = _berichtsheftService.FilterApprenticesBySkipCount(apprentices, skipped);
 
             // Assert
             Assert.IsEmpty(result);
@@ -252,7 +252,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesFromLogBySkipped(logs, skipped);
+            var result = _berichtsheftService.FilterApprenticesFromLogBySkipped(logs, skipped);
 
             // Assert
             Assert.That(result.Count, Is.EqualTo(2));
@@ -274,7 +274,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesFromLogBySkipped(logs, skipped);
+            var result = _berichtsheftService.FilterApprenticesFromLogBySkipped(logs, skipped);
 
             // Assert
             Assert.IsEmpty(result);
@@ -288,7 +288,7 @@ namespace BerichtBotNet_Tests.Helper
             bool skipped = true;
 
             // Act
-            var result = _berichtsheft.FilterApprenticesFromLogBySkipped(logs, skipped);
+            var result = _berichtsheftService.FilterApprenticesFromLogBySkipped(logs, skipped);
 
             // Assert
             Assert.IsEmpty(result);
@@ -331,7 +331,7 @@ namespace BerichtBotNet_Tests.Helper
             _logRepository.CreateLog(log4);
 
             // Act
-            var result = _berichtsheft.BerichtsheftOrder(group);
+            var result = _berichtsheftService.BerichtsheftOrder(group);
 
             // Assert
             Assert.That(result.Item1.Count, Is.EqualTo(2));
@@ -356,10 +356,10 @@ namespace BerichtBotNet_Tests.Helper
 
             _apprenticeRepository.CreateApprentice(apprentice);
 
-            _berichtsheft.GetCurrentBerichtsheftWriterOfGroup(group.Id);
+            _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(group.Id);
 
             // Act
-            var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
+            var result = _berichtsheftService.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
             Assert.That(result, Is.EqualTo($"Azubi: John Doe muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben."));
@@ -382,7 +382,7 @@ namespace BerichtBotNet_Tests.Helper
             _weeksRepository.Create(new() { SkippedWeek = DateTime.Now, GroupId = group.Id });
 
             // Act
-            var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
+            var result = _berichtsheftService.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
             Assert.That(result, Is.EqualTo($"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden."));
@@ -402,7 +402,7 @@ namespace BerichtBotNet_Tests.Helper
             var berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
 
             // Act
-            var result = _berichtsheft.CurrentBerichtsheftWriterMessage(group, false);
+            var result = _berichtsheftService.CurrentBerichtsheftWriterMessage(group, false);
 
             // Assert
             Assert.That(

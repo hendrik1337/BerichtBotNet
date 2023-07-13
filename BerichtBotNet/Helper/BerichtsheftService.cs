@@ -6,13 +6,13 @@ using Discord;
 
 namespace BerichtBotNet.Helper;
 
-public class Berichtsheft
+public class BerichtsheftService
 {
     private readonly ApprenticeRepository _apprenticeRepository;
     private readonly LogRepository _logRepository;
     private readonly SkippedWeeksRepository _weeksRepository;
 
-    public Berichtsheft(ApprenticeRepository apprenticeRepository, LogRepository logRepository,
+    public BerichtsheftService(ApprenticeRepository apprenticeRepository, LogRepository logRepository,
         SkippedWeeksRepository weeksRepository)
     {
         _apprenticeRepository = apprenticeRepository;
