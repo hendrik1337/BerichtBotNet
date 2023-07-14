@@ -89,40 +89,34 @@ public class BerichtsheftService
     // Diese Methode dient dazu, die Reihenfolge der Auszubildenden im  Berichtsheft-Schreiben aus einer bestimmten Gruppe zu sortieren.
     public (List<Apprentice>?, List<Apprentice>?) BerichtsheftOrder(Group group)
     {
-        // Die Liste der Auszubildenden, die zur angegebenen Gruppe gehören, wird abgerufen.
+        // Get the list of apprentices belonging to the specified group
         List<Apprentice> apprenticesOfGroup = _apprenticeRepository.GetApprenticesInSameGroupByGroupId(group.Id);
 
-        // Die Logs, die mit der Gruppe verknüpft sind, werden abgerufen.
+        // Get the logs associated with the group
         var logs = _logRepository.GetLogsOfGroup(group.Id);
 
-        // Auszubildende in der Gruppe identifizieren, die noch nie einen Bericht geschrieben haben.
-        List<Apprentice> apprenticesOfGroupThatNeverWrote = GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
+        // Identify apprentices in the group who have never written a Berichtsheft
+        List<Apprentice> apprenticesThatNeverWrote = GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
 
+        // Initialize lists for apprentices who are not skipped and apprentices who are skipped
         List<Apprentice> apprenticesOrderNotSkipped = new List<Apprentice>();
         List<Apprentice> apprenticesOrderSkipped = new List<Apprentice>();
 
-        // Nicht übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben , in die Reihenfolge aufnehmen.
-        apprenticesOrderNotSkipped = apprenticesOrderNotSkipped
-            .Concat(FilterApprenticesBySkipCount(apprenticesOfGroupThatNeverWrote, false)).ToList();
+        // Add apprentices who are not skipped and have never written a Berichtsheft to the not skipped order list
+        apprenticesOrderNotSkipped.AddRange(FilterApprenticesBySkipCount(apprenticesThatNeverWrote, false));
+        var notSkippedFromLog = FilterApprenticesFromLogBySkipped(logs, false);
+        apprenticesOrderNotSkipped.AddRange(notSkippedFromLog.Select(log => log.Apprentice));
 
-        // Auszubildende hinzufügen, die nicht übersprungen werden, aber schonmal ein Berichtsheft geschrieben haben, zur Reihenfolge.
-        foreach (var log in FilterApprenticesFromLogBySkipped(logs, false))
-        {
-            apprenticesOrderNotSkipped.Add(log.Apprentice);
-        }
+        // Add apprentices who are skipped and have never written a Berichtsheft to the skipped order list
+        apprenticesOrderSkipped.AddRange(FilterApprenticesBySkipCount(apprenticesThatNeverWrote, true));
+        var skippedFromLog = FilterApprenticesFromLogBySkipped(logs, true);
+        apprenticesOrderSkipped.AddRange(skippedFromLog.Select(log => log.Apprentice));
 
-        // Übersprungene Auszubildende, die noch nie das Berichtsheft geschrieben haben, in die Reihenfolge aufnehmen.
-        apprenticesOrderSkipped = apprenticesOrderSkipped
-            .Concat(FilterApprenticesBySkipCount(apprenticesOfGroupThatNeverWrote, true)).ToList();
-
-        // Auszubildende hinzufügen, die übersprungen werden aber schonmal das Berichtsheft geschrieben haben, zur Reihenfolge.
-        foreach (var log in FilterApprenticesFromLogBySkipped(logs, true))
-        {
-            apprenticesOrderSkipped.Add(log.Apprentice);
-        }
-        
-        return (apprenticesOrderNotSkipped, apprenticesOrderSkipped);
+        // Return the lists of apprentices in the order, with null values if the lists are empty
+        return (apprenticesOrderNotSkipped.Count > 0 ? apprenticesOrderNotSkipped : null,
+            apprenticesOrderSkipped.Count > 0 ? apprenticesOrderSkipped : null);
     }
+
 
     public void CurrentBerichsheftWriterWrote(int groupId)
     {
@@ -146,61 +140,55 @@ public class BerichtsheftService
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(group.StartOfApprenticeship, DateTime.Now);
         string berichtsheftNumberPlusCw = $"(Nr: {berichtsheftNumber}, {currentCalendarWeek})";
 
-        foreach (var date in skippedWeeksList)
+        bool isSkippedWeek = skippedWeeksList.Any(date =>
+            WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek).Equals(currentCalendarWeek));
+
+        if (isSkippedWeek)
         {
-            if (WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek).Equals(currentCalendarWeek))
-            {
-                return $"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.";
-            }
+            return $"Diese Woche {berichtsheftNumberPlusCw} muss kein Berichtsheft geschrieben werden.";
         }
 
         try
         {
-            Apprentice? currentBerichtsheftWriter =
-                GetCurrentBerichtsheftWriterOfGroup(group.Id);
-            if (mention)
-            {
-                return
-                    $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}> muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
-            }
-            else
-            {
-                return
-                    $"Azubi: {currentBerichtsheftWriter.Name} muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
-            }
-           
+            Apprentice? currentBerichtsheftWriter = GetCurrentBerichtsheftWriterOfGroup(group.Id);
+            string messagePrefix = mention ? $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}>" : $"Azubi: {currentBerichtsheftWriter.Name}";
+            return $"{messagePrefix} muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
         }
-        catch (GroupIsEmptyException ignored)
+        catch (GroupIsEmptyException)
         {
             return $"Es wurde keine Person gefunden, die das Berichtsheft schreiben kann {berichtsheftNumberPlusCw}";
         }
     }
 
+
     public Apprentice GetBerichtsheftWriterOfDate(Group group, DateTime date)
     {
         var logs = _logRepository.GetLogsOfGroup(group.Id);
+        string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
 
-        foreach (var log in logs)
+        var writerLog = logs.FirstOrDefault(log =>
+            WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp).Equals(dateCw));
+
+        if (writerLog != null)
         {
-            string logCw = WeekHelper.DateTimeToCalendarWeekYearCombination(log.Timestamp);
-            string dateCw = WeekHelper.DateTimeToCalendarWeekYearCombination(date);
-            if (logCw.Equals(dateCw))
-            {
-                return log.Apprentice;
-            }
+            return writerLog.Apprentice;
         }
 
         throw new BerichtsheftNotFound();
     }
+
     public Apprentice GetBerichtsheftWriterOfNumber(Group group, int number)
     {
         var logList = _logRepository.GetLogsOfGroup(group.Id);
-        var log = from logs in logList
-            where logs.BerichtheftNummer == number
-            select logs;
 
-        if (log.FirstOrDefault() is not null) return log.First().Apprentice;
+        var writerLog = logList.FirstOrDefault(log => log.BerichtheftNummer == number);
+
+        if (writerLog != null)
+        {
+            return writerLog.Apprentice;
+        }
 
         throw new BerichtsheftNotFound();
     }
+
 }
