@@ -120,7 +120,7 @@ public class ApprenticeController
 
         return true;
     }
-    
+
     private async void UnSkipApprentice(SocketSlashCommand command)
     {
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
@@ -144,34 +144,30 @@ public class ApprenticeController
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
         if (!ValidateRequest(component, requester).Result) return;
 
-        Apprentice currentBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        Apprentice currentBerichtsheftWriter = null;
 
-        var apprenticeId = string.Join(", ", component.Data.Values);
+        try
+        {
+            currentBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        }
+        catch (GroupIsEmptyException ignored)
+        {
+        }
+
+        var apprenticeId = component.Data.Values.FirstOrDefault();
         var apprenticeToSkip = _apprenticeRepository.GetApprentice(int.Parse(apprenticeId));
         apprenticeToSkip.Skipped = skipped;
         _apprenticeRepository.UpdateApprentice(apprenticeToSkip);
 
-        if (skipped)
-        {
-            await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird übersprungen.");
-        }
-        else
-        {
-            await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} wird nicht mehr übersprungen.");
-        }
+        var skipMessage = skipped ? "wird übersprungen" : "wird nicht mehr übersprungen";
+        await component.RespondAsync($"Azubi: {apprenticeToSkip.Name} {skipMessage}.");
 
-        string ans;
+        bool isCurrentWriter = currentBerichtsheftWriter != null &&
+                               currentBerichtsheftWriter.Id == _berichtsheftService
+                                   .GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id).Id;
 
-        if (currentBerichtsheftWriter.Id == _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id).Id)
-        {
-            ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, false);
-        }
-        else
-        {
-            ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, true);
-        }
+        string ans = _berichtsheftService.CurrentBerichtsheftWriterMessage(apprenticeToSkip.Group, !isCurrentWriter);
 
-        
         await component.Channel.SendMessageAsync(ans);
     }
 
@@ -197,7 +193,8 @@ public class ApprenticeController
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(component.User.Id.ToString());
         if (!ValidateRequest(component, requester).Result) return;
 
-        Apprentice? nextBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+        Apprentice? nextBerichtsheftWriter =
+            _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
         nextBerichtsheftWriter.Skipped = true;
         _apprenticeRepository.UpdateApprentice(nextBerichtsheftWriter);
 
@@ -217,7 +214,8 @@ public class ApprenticeController
 
         if (_apprenticeRepository.GetApprenticeByDiscordId(discordId) is not null)
         {
-            await modal.RespondAsync("Registrieren Fehlgeschlagen.\nEs gibt bereite einen Nutzer mit dieser Discord ID.");
+            await modal.RespondAsync(
+                "Registrieren Fehlgeschlagen.\nEs gibt bereite einen Nutzer mit dieser Discord ID.");
             return;
         }
 
@@ -328,13 +326,13 @@ public class ApprenticeController
 
         try
         {
-            Apprentice? nextBerichtsheftWriter = _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
+            Apprentice? nextBerichtsheftWriter =
+                _berichtsheftService.GetCurrentBerichtsheftWriterOfGroup(requester.Group.Id);
             _apprenticeView.SendSkipChoice(command, nextBerichtsheftWriter);
         }
         catch (GroupIsEmptyException ignored)
         {
             await command.RespondAsync("Es gibt keinen Azubi zum überspringen");
         }
-        
     }
 }
