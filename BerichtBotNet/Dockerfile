@@ -3,8 +3,8 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["BerichtBotNet/BerichtBotNet.csproj", "BerichtBotNet/"]
-RUN dotnet restore "BerichtBotNet/BerichtBotNet.csproj"
+COPY ["BerichtBotNet.csproj", "BerichtBotNet/"]
+RUN dotnet restore "BerichtBotNet.csproj"
 COPY . .
 WORKDIR "/src/BerichtBotNet"
 RUN dotnet build "BerichtBotNet.csproj" -c Release -o /app/build

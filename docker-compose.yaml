@@ -7,15 +7,18 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: changeMe
+    ports:
+      - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
     
   berichtbotnet:
     build:
-      dockerfile: BerichtBotNet/Dockerfile
+      context: ./BerichtBotNet
+      dockerfile: Dockerfile
     restart: unless-stopped 
     environment:
-      DiscordToken: Your_Discord_Token
+      DiscordToken: MTA4MTYwMDE1ODU1NjQ5MTg1Ng.Gvi7n7.hi1wHbKRRisl0EH8majFAe6Fwd6q_zYLJ3bxvE
       PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=changeMe
     depends_on: 
       - db
