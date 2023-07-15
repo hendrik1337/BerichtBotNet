@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped 
     environment:
-      DiscordToken: MTA4MTYwMDE1ODU1NjQ5MTg1Ng.Gvi7n7.hi1wHbKRRisl0EH8majFAe6Fwd6q_zYLJ3bxvE
+      DiscordToken: Your_Discord_Token
       PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=changeMe
     depends_on: 
       - db
