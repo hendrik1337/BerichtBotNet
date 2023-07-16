@@ -13,10 +13,8 @@ services:
       - db:/var/lib/postgresql/data
     
   berichtbotnet:
-    build:
-      context: ./BerichtBotNet
-      dockerfile: Dockerfile
-    restart: unless-stopped 
+    image: lumikko/berichtbotnet:dev
+    restart: "no"
     environment:
       DiscordToken: Your_Discord_Token
       PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=changeMe
