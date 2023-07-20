@@ -51,13 +51,23 @@ public class WeekHelperTests
         
     }
 
+    public static IEnumerable<TestCaseData> GetBerichtsheftTestData()
+    {
+        yield return new TestCaseData(new DateTime(2023, 7, 10), 50);
+        yield return new TestCaseData(new DateTime(2023, 7, 11), 50);
+        yield return new TestCaseData(new DateTime(2023, 7, 16), 50);
+        yield return new TestCaseData(new DateTime(2023, 7, 17), 51);
+        yield return new TestCaseData(new DateTime(2023, 7, 18), 51);
+        yield return new TestCaseData(new DateTime(2023, 7, 23), 51);
+        // Add more test cases as needed
+    }
+
     [Test]
-    public void GetBerichtsheftNumber_ReturnsCorrectNumber()
+    [TestCaseSource(nameof(GetBerichtsheftTestData))]
+    public void GetBerichtsheftNumber_ReturnsCorrectNumber(DateTime currentDate, int expectedNumber)
     {
         // Arrange
         DateTime ausbildungsStart = new DateTime(2022, 8, 3);
-        DateTime currentDate = new DateTime(2023, 7, 11);
-        int expectedNumber = 50;
 
         // Act
         int resultNumber = WeekHelper.GetBerichtsheftNumber(ausbildungsStart, currentDate);
@@ -65,4 +75,5 @@ public class WeekHelperTests
         // Assert
         Assert.That(resultNumber, Is.EqualTo(expectedNumber));
     }
+
 }
