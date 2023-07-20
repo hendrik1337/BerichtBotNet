@@ -19,7 +19,7 @@ public class ApprenticeView
                 .AddTextInput("Gruppe", "azubi_group", value: user.Group?.Name,
                     placeholder: "Stelle sicher, dass die Gruppe existiert.")
                 .AddTextInput("Überspringen", "azubi_skip", value: user.Skipped.ToString(),
-                    placeholder: "0 = Wird nicht übersprungen, 1 = wird übersprungen");
+                    placeholder: "True / False");
 
             await command.RespondWithModalAsync(addApprenticeModal.Build());
         }

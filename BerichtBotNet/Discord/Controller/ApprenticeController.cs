@@ -261,7 +261,7 @@ public class ApprenticeController
         requester.Name = username;
         requester.DiscordUserId = discordId;
         requester.Group = _groupRepository.GetGroupByName(group);
-        requester.Skipped = int.Parse(skip) == 1;
+        requester.Skipped = bool.Parse(skip.ToLower());
 
         // Save the updated Apprentice to the database
         _apprenticeRepository.UpdateApprentice(requester);
