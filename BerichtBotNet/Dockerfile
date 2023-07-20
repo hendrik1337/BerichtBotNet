@@ -27,5 +27,8 @@ WORKDIR /app
 # Copy the published output from the build stage
 COPY --from=build /app/publish .
 
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Set the entry point for the application
 ENTRYPOINT ["dotnet", "BerichtBotNet.dll"]
