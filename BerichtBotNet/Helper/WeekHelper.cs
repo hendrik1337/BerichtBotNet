@@ -22,10 +22,17 @@ public class WeekHelper
 
     public static int GetBerichtsheftNumber(DateTime ausbildungsStart, DateTime currentDate)
     {
+        if (currentDate.DayOfWeek == DayOfWeek.Sunday)
+        {
+            currentDate = currentDate.AddDays(-6);
+        }
+        
         // Setzt beide Tage auf Montag und entfernt die Uhrzeit, um nur die Wochen zu unterscheiden
         currentDate = currentDate.Date.AddDays(-(int)currentDate.DayOfWeek + 1);
         ausbildungsStart = ausbildungsStart.Date.AddDays(-(int)ausbildungsStart.DayOfWeek + 1);
         
+        
+
         TimeSpan duration = currentDate.Subtract(ausbildungsStart);
         
         // + 1, weil die Nummerierung bei 1 und nicht bei 0 beginnt

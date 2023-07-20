@@ -1,4 +1,6 @@
-﻿using BerichtBotNet.Data;
+﻿using System.Reflection.Metadata;
+using BerichtBotNet.Data;
+using BerichtBotNet.Helper;
 using Discord;
 using Discord.WebSocket;
 
@@ -24,9 +26,9 @@ public class GroupView
             .WithTitle("Gruppe Bearbeiten")
             .AddTextInput("Name", "group_name", placeholder: "FI-22", value: group.Name)
             .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022",
-                value: group.StartOfApprenticeship.ToString("d"))
+                value: group.StartOfApprenticeship.ToString("d", Constants.CultureInfo))
             .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30",
-                value: group.ReminderTime.ToLocalTime().ToString("t"))
+                value: group.ReminderTime.ToLocalTime().ToString("t", Constants.CultureInfo))
             .AddTextInput("Discord Kanal Id", "group_id",
                 placeholder: "Channel für Wochentliche Erinnerungen",
                 required: true, value: group.DiscordGroupId);
