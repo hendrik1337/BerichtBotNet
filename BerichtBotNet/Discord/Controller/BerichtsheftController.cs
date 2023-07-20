@@ -175,7 +175,7 @@ public class BerichtsheftController
             ans += "\n";
         }
 
-        if (berichtsheftWriterOrder.Item2.Count > 0)
+        if (berichtsheftWriterOrder.Item2 is not null)
         {
             ans += "\nAzubis, die übersprungen werden:\n";
             foreach (var apprentice in berichtsheftWriterOrder.Item2)
