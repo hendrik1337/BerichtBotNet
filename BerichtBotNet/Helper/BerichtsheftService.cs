@@ -65,11 +65,12 @@ public class BerichtsheftService
     public List<Apprentice> GetApprenticesThatNeverWrote(List<Apprentice> apprenticesOfGroup, List<Log> logs)
     {
         var apprenticeIdsThatWrote = logs.Select(log => log.Apprentice.Id).Distinct().ToList();
-        var apprenticesThatNeverWrote = apprenticesOfGroup.Where(apprentice => !apprenticeIdsThatWrote.Contains(apprentice.Id)).ToList();
+        var apprenticesThatNeverWrote = apprenticesOfGroup
+            .Where(apprentice => !apprenticeIdsThatWrote.Contains(apprentice.Id)).ToList();
 
         return apprenticesThatNeverWrote;
     }
-    
+
     public List<Apprentice> FilterApprenticesBySkipCount(List<Apprentice> apprentices, bool skipped)
     {
         return apprentices.Where(a => a.Skipped == skipped).ToList();
@@ -120,13 +121,23 @@ public class BerichtsheftService
 
     public void CurrentBerichsheftWriterWrote(int groupId)
     {
+        List<SkippedWeeks> skippedWeeksList = _weeksRepository.GetByGroupId(groupId);
+        string currentCalendarWeek = WeekHelper.DateTimeToCalendarWeekYearCombination(DateTime.Now);
+        bool isSkippedWeek = skippedWeeksList.Any(date =>
+            WeekHelper.DateTimeToCalendarWeekYearCombination(date.SkippedWeek).Equals(currentCalendarWeek));
+        if (isSkippedWeek)
+        {
+            return;
+        }
+
         Apprentice currentApprentice = GetCurrentBerichtsheftWriterOfGroup(groupId);
 
         var log = new Log()
         {
             Apprentice = currentApprentice,
             Timestamp = DateTime.Now.ToUniversalTime(),
-            BerichtheftNummer = WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now),
+            BerichtheftNummer =
+                WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now),
             Group = currentApprentice.Group
         };
 
@@ -152,7 +163,9 @@ public class BerichtsheftService
         try
         {
             Apprentice? currentBerichtsheftWriter = GetCurrentBerichtsheftWriterOfGroup(group.Id);
-            string messagePrefix = mention ? $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}>" : $"Azubi: {currentBerichtsheftWriter.Name}";
+            string messagePrefix = mention
+                ? $"Azubi: <@!{currentBerichtsheftWriter.DiscordUserId}>"
+                : $"Azubi: {currentBerichtsheftWriter.Name}";
             return $"{messagePrefix} muss diese Woche {berichtsheftNumberPlusCw} das Berichtsheft schreiben.";
         }
         catch (GroupIsEmptyException)
@@ -191,5 +204,4 @@ public class BerichtsheftService
 
         throw new BerichtsheftNotFound();
     }
-
 }
