@@ -130,18 +130,26 @@ public class BerichtsheftService
             return;
         }
 
-        Apprentice currentApprentice = GetCurrentBerichtsheftWriterOfGroup(groupId);
-
-        var log = new Log()
+        try
         {
-            Apprentice = currentApprentice,
-            Timestamp = DateTime.Now.ToUniversalTime(),
-            BerichtheftNummer =
-                WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now),
-            Group = currentApprentice.Group
-        };
+            Apprentice currentApprentice = GetCurrentBerichtsheftWriterOfGroup(groupId);
 
-        _logRepository.CreateLog(log);
+            var log = new Log()
+            {
+                Apprentice = currentApprentice,
+                Timestamp = DateTime.Now.ToUniversalTime(),
+                BerichtheftNummer =
+                    WeekHelper.GetBerichtsheftNumber(currentApprentice.Group.StartOfApprenticeship, DateTime.Now),
+                Group = currentApprentice.Group
+            };
+
+            _logRepository.CreateLog(log);
+        }
+        catch (GroupIsEmptyException)
+        {
+            Console.WriteLine(
+                $"Für die Gruppe mit der Id {groupId} konnte kein Log erstellt werden, da kein Berichtsheftschreiber gefunden wurde");
+        }
     }
 
     public string CurrentBerichtsheftWriterMessage(Group group, bool mention)
