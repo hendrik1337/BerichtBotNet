@@ -8,6 +8,13 @@ public class Log
     public int Id { get; set; }
     public virtual Apprentice Apprentice { get; set; }
     public int BerichtheftNummer { get; set; }
-    public DateTime Timestamp { get; set; }
+    
+    private DateTime _timestamp;
+    public DateTime Timestamp
+    {
+        get => _timestamp.ToLocalTime();
+        set => _timestamp = value.ToUniversalTime();
+    }
+
     public virtual Group Group { get; set; } = null!;
 }
