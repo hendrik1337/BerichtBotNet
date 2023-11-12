@@ -81,9 +81,10 @@ public class BerichtsheftService
         return logs
             .Where(log =>
                 log.Apprentice.Skipped == skipped) // Filter logs based on SkipCount
+            .Reverse()
             .GroupBy(log => log.Apprentice.Id) // Group logs by Apprentice
             .Select(group =>
-                group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
+                group.OrderBy(log => log.Timestamp).First()) // Select the most recent log for each group
             .ToList();
     }
 
@@ -106,12 +107,12 @@ public class BerichtsheftService
         // Add apprentices who are not skipped and have never written a Berichtsheft to the not skipped order list
         apprenticesOrderNotSkipped.AddRange(FilterApprenticesBySkipCount(apprenticesThatNeverWrote, false));
         var notSkippedFromLog = FilterApprenticesFromLogBySkipped(logs, false);
-        apprenticesOrderNotSkipped.AddRange(notSkippedFromLog.Select(log => log.Apprentice));
+        apprenticesOrderNotSkipped.AddRange(notSkippedFromLog.Select(log => log.Apprentice).Reverse());
 
         // Add apprentices who are skipped and have never written a Berichtsheft to the skipped order list
         apprenticesOrderSkipped.AddRange(FilterApprenticesBySkipCount(apprenticesThatNeverWrote, true));
         var skippedFromLog = FilterApprenticesFromLogBySkipped(logs, true);
-        apprenticesOrderSkipped.AddRange(skippedFromLog.Select(log => log.Apprentice));
+        apprenticesOrderSkipped.AddRange(skippedFromLog.Select(log => log.Apprentice).Reverse());
 
         // Return the lists of apprentices in the order, with null values if the lists are empty
         return (apprenticesOrderNotSkipped.Count > 0 ? apprenticesOrderNotSkipped : null,

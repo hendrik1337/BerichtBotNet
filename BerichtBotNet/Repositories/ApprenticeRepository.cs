@@ -67,4 +67,9 @@ public class ApprenticeRepository
             _context.SaveChanges();
         }
     }
+
+    public int GetGroupSize(int groupId)
+    {
+        return this.GetApprenticesInSameGroupByGroupId(groupId).Count;
+    }
 }

@@ -305,42 +305,62 @@ namespace BerichtBotNet_Tests.Helper
             };
             _groupRepository.CreateGroup(group);
 
-            var apprentice1 = new Apprentice { Skipped = false, Name = "Jeff", DiscordUserId = "12", Group = group };
-            var apprentice2 = new Apprentice { Skipped = true, Name = "Bob", DiscordUserId = "13", Group = group };
-            var apprentice3 = new Apprentice { Skipped = false, Name = "Carmen", DiscordUserId = "14", Group = group };
-            var apprentice4 = new Apprentice { Skipped = true, Name = "Melissa", DiscordUserId = "15", Group = group };
+            var apprentice1 = new Apprentice { Skipped = false, Name = "Hendrik", DiscordUserId = "12", Group = group };
+            var apprentice2 = new Apprentice { Skipped = false, Name = "Vathu", DiscordUserId = "13", Group = group };
+            var apprentice3 = new Apprentice { Skipped = false, Name = "Heinrich", DiscordUserId = "14", Group = group };
+            var apprentice4 = new Apprentice { Skipped = false, Name = "Phil", DiscordUserId = "15", Group = group };
+            var apprentice5 = new Apprentice { Skipped = false, Name = "Aaron", DiscordUserId = "16", Group = group };
+            var apprentice6 = new Apprentice { Skipped = false, Name = "Jan", DiscordUserId = "17", Group = group };
 
             _apprenticeRepository.CreateApprentice(apprentice1);
             _apprenticeRepository.CreateApprentice(apprentice2);
             _apprenticeRepository.CreateApprentice(apprentice3);
             _apprenticeRepository.CreateApprentice(apprentice4);
+            _apprenticeRepository.CreateApprentice(apprentice5);
+            _apprenticeRepository.CreateApprentice(apprentice6);
 
 
             var log1 = new Log
-                { Apprentice = apprentice1, Timestamp = DateTime.Now, Group = group, BerichtheftNummer = 11 };
+                { Apprentice = apprentice1, Timestamp = DateTime.Parse("2023-09-03 20:00:00.353 +0200"), Group = group, BerichtheftNummer = 57 };
             var log2 = new Log
-                { Apprentice = apprentice2, Timestamp = DateTime.Now, Group = group, BerichtheftNummer = 12 };
+                { Apprentice = apprentice2, Timestamp = DateTime.Parse("2023-09-10 20:00:00.114 +0200"), Group = group, BerichtheftNummer = 58 };
             var log3 = new Log
-                { Apprentice = apprentice3, Timestamp = DateTime.Now, Group = group, BerichtheftNummer = 13 };
+                { Apprentice = apprentice3, Timestamp = DateTime.Parse("2023-09-17 20:00:00.070 +0200"), Group = group, BerichtheftNummer = 59 };
             var log4 = new Log
-                { Apprentice = apprentice4, Timestamp = DateTime.Now, Group = group, BerichtheftNummer = 14 };
+                { Apprentice = apprentice4, Timestamp = DateTime.Parse("2023-09-24 20:00:00.072 +0200"), Group = group, BerichtheftNummer = 60 };
+            var log5 = new Log
+                { Apprentice = apprentice4, Timestamp = DateTime.Parse("2023-10-01 20:00:00.048 +0200"), Group = group, BerichtheftNummer = 61 };
+            var log6 = new Log
+                { Apprentice = apprentice4, Timestamp = DateTime.Parse("2023-10-22 20:00:00.048 +0200"), Group = group, BerichtheftNummer = 64 };
+            var log7 = new Log
+                { Apprentice = apprentice4, Timestamp = DateTime.Parse("2023-10-29 19:00:00.048 +0100"), Group = group, BerichtheftNummer = 65 };
+            var log8 = new Log
+                { Apprentice = apprentice4, Timestamp = DateTime.Parse("2023-11-05 19:00:00.048 +0100"), Group = group, BerichtheftNummer = 66 };
 
             _logRepository.CreateLog(log1);
             _logRepository.CreateLog(log2);
             _logRepository.CreateLog(log3);
             _logRepository.CreateLog(log4);
+            _logRepository.CreateLog(log5);
+            _logRepository.CreateLog(log6);
+            _logRepository.CreateLog(log7);
+            _logRepository.CreateLog(log8);
 
             // Act
             var result = _berichtsheftService.BerichtsheftOrder(group);
 
+            List<Apprentice> correctOrder = new List<Apprentice>();
+            
+            
+            correctOrder.Add(apprentice6);
+            correctOrder.Add(apprentice1);
+            correctOrder.Add(apprentice3);
+            correctOrder.Add(apprentice4);
+            correctOrder.Add(apprentice5);
+            correctOrder.Add(apprentice2);
             // Assert
-            Assert.That(result.Item1.Count, Is.EqualTo(2));
-            Assert.Contains(apprentice1, result.Item1);
-            Assert.Contains(apprentice3, result.Item1);
-
-            Assert.That(result.Item2.Count, Is.EqualTo(2));
-            Assert.Contains(apprentice2, result.Item2);
-            Assert.Contains(apprentice4, result.Item2);
+            // Assert
+            Assert.That(result.Item1.ToList(), Is.EquivalentTo(correctOrder));
         }
 
         [Test]
