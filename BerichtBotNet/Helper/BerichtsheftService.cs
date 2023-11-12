@@ -81,10 +81,9 @@ public class BerichtsheftService
         return logs
             .Where(log =>
                 log.Apprentice.Skipped == skipped) // Filter logs based on SkipCount
-            .Reverse()
             .GroupBy(log => log.Apprentice.Id) // Group logs by Apprentice
             .Select(group =>
-                group.OrderBy(log => log.Timestamp).First()) // Select the most recent log for each group
+                group.OrderByDescending(log => log.Timestamp).First()) // Select the most recent log for each group
             .ToList();
     }
 
@@ -96,6 +95,7 @@ public class BerichtsheftService
 
         // Get the logs associated with the group
         var logs = _logRepository.GetLogsOfGroup(group.Id);
+        logs.Reverse();
 
         // Identify apprentices in the group who have never written a Berichtsheft
         List<Apprentice> apprenticesThatNeverWrote = GetApprenticesThatNeverWrote(apprenticesOfGroup, logs);
