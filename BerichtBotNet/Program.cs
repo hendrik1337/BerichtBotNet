@@ -8,6 +8,7 @@ using BerichtBotNet.Reminders;
 using BerichtBotNet.Repositories;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Quartz;
@@ -35,6 +36,19 @@ class BerichtBotNet
 
     public async Task MainAsync()
     {
+        var serviceProvider = new ServiceCollection()
+            .AddDbContext<BerichtBotContext>(options =>
+                options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"))) // Replace with your actual connection string
+            .BuildServiceProvider();
+
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<BerichtBotContext>();
+
+            // Apply pending migrations
+            dbContext.Database.Migrate();
+        }
+        
         InitializeCommandHandlers();
 
         _cancellationTokenSource = new CancellationTokenSource();
