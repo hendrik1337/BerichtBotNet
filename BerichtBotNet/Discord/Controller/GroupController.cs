@@ -23,7 +23,8 @@ public class GroupController
         _groupView = new GroupView();
         _apprenticeView = new ApprenticeView();
     }
-
+    
+    // "Get"
     public void GroupCommandHandler(SocketSlashCommand command)
     {
         switch (command.Data.Options.First().Value)
@@ -40,6 +41,7 @@ public class GroupController
         }
     }
 
+    // "Post / Update"
     public async void GroupModalHandler(SocketModal modal)
     {
         switch (modal.Data.CustomId)
@@ -56,6 +58,7 @@ public class GroupController
         }
     }
     
+    // "Delete"
     public async void GroupMessageComponentHandler(SocketMessageComponent component)
     {
         switch (component.Data.CustomId)

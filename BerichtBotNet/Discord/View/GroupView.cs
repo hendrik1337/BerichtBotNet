@@ -14,7 +14,7 @@ public class GroupView
             .WithTitle("Gruppe Hinzufügen")
             .AddTextInput("Name", "group_name", placeholder: "FI-22")
             .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022")
-            .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30")
+            .AddTextInput("Berichtsheft Erinnerungs Tag und Uhrzeit", "group_time", placeholder: "Montag, 08:30")
             .AddTextInput("Discord Kanal Id (Standard aktueller Kanal)", "group_id",
                 placeholder: "Channel für Wochentliche Erinnerungen",
                 required: true, value: channelId.ToString());
@@ -27,7 +27,7 @@ public class GroupView
             .AddTextInput("Name", "group_name", placeholder: "FI-22", value: group.Name)
             .AddTextInput("Ausbildungsstart", "group_start", placeholder: "03.08.2022",
                 value: group.StartOfApprenticeship.ToString("d", Constants.CultureInfo))
-            .AddTextInput("Berichtsheft Erinnerungs Uhrzeit", "group_time", placeholder: "08:30",
+            .AddTextInput("Berichtsheft Erinnerungs Tag und Uhrzeit", "group_time", placeholder: "Montag, 08:30",
                 value: group.ReminderTime.ToLocalTime().ToString("t", Constants.CultureInfo))
             .AddTextInput("Discord Kanal Id", "group_id",
                 placeholder: "Channel für Wochentliche Erinnerungen",

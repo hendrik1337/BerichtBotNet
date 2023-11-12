@@ -36,9 +36,10 @@ public class WeekHelperTests
         {
             new (2023, 1, 1),
             new (2023, 12, 31),
-            new (2023, 7, 11)
+            new (2023, 7, 11),
+            new (2023, 7, 31)
         };
-        string[] expectedCalendarWeekString = {"KW 52 2022", "KW 52 2023", "KW 28 2023"};
+        string[] expectedCalendarWeekString = {"KW 52 2022", "KW 52 2023", "KW 28 2023", "KW 31 2023"};
 
         // Act
         for (var i = 0; i < dates.Length; i++)
