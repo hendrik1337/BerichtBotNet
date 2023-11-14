@@ -127,7 +127,7 @@ class BerichtBotNet
                 .StartNow()
                 .WithSchedule(CronScheduleBuilder
                     .WeeklyOnDayAndHourAndMinute(
-                        DayOfWeek.Wednesday,
+                        group.ReminderDayOfWeek,
                         group.ReminderTime.ToLocalTime().Hour,
                         group.ReminderTime.ToLocalTime().Minute))
                 .Build();
