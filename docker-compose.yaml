@@ -13,7 +13,7 @@ services:
       - db:/var/lib/postgresql/data
     
   berichtbotnet:
-    image: lumikko/berichtbotnet:dev
+    image: ghcr.io/hendrik1337/berichtbotnet
     restart: "no"
     environment:
       DiscordToken: Your_Discord_Token
