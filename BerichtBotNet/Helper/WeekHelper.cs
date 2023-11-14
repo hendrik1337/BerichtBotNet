@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using BerichtBotNet.Exceptions;
 
 namespace BerichtBotNet.Helper;
 
@@ -37,5 +38,52 @@ public class WeekHelper
         
         // + 1, weil die Nummerierung bei 1 und nicht bei 0 beginnt
         return (int)Math.Ceiling(duration.TotalDays / 7) + 1;
+    }
+
+    public static DayOfWeek ParseStringIntoDayOfWeek(string dayString)
+    {
+        dayString = dayString.ToLower();
+        switch (dayString)
+        {
+            case "mo":
+                return DayOfWeek.Monday;
+            case "di":
+                return DayOfWeek.Wednesday;
+            case "mi":
+                return DayOfWeek.Wednesday;
+            case "do":
+                return DayOfWeek.Thursday;
+            case "fr":
+                return DayOfWeek.Friday;
+            case "sa":
+                return DayOfWeek.Saturday;
+            case "so":
+                return DayOfWeek.Sunday;
+            default:
+                throw new InvalidWeekDayInputException();
+        }
+    }
+    
+    public static string ParseDayOfWeekIntoString(DayOfWeek day)
+    {
+        switch (day)
+        {
+            case DayOfWeek.Monday:
+                return "Mo";
+            case DayOfWeek.Tuesday:
+                return "Di";
+            case DayOfWeek.Wednesday:
+                return "Mi";
+            case DayOfWeek.Thursday:
+                return "Do";
+            case DayOfWeek.Friday:
+                return "Fr";
+            case DayOfWeek.Saturday:
+                return "Sa";
+            case DayOfWeek.Sunday:
+                return "So";
+            default:
+                throw new ArgumentException("Invalid DayOfWeek value.");
+        }
     }
 }
