@@ -1,6 +1,7 @@
 ﻿using BerichtBotNet.Data;
 using BerichtBotNet.Discord.View;
 using BerichtBotNet.Exceptions;
+using BerichtBotNet.Helper;
 using BerichtBotNet.Repositories;
 using Discord.WebSocket;
 using Constants = BerichtBotNet.Helper.Constants;
@@ -163,7 +164,12 @@ public class GroupController
         string groupName = components.First(x => x.CustomId == "group_name").Value;
         string groupId = components.First(x => x.CustomId == "group_id").Value;
         string groupStart = components.First(x => x.CustomId == "group_start").Value;
-        string groupTime = components.First(x => x.CustomId == "group_time").Value;
+        string groupWeekdayAndTime = components.First(x => x.CustomId == "group_time").Value;
+
+        string groupDayOfWeekStr = groupWeekdayAndTime.Split(",")[0];
+        string groupTime = groupWeekdayAndTime.Split(",")[1];
+
+        DayOfWeek groupDayOfWeek = WeekHelper.ParseStringIntoDayOfWeek(groupDayOfWeekStr);
 
 
         DateTime groupReminderTime = DateTime.Parse(groupTime, Constants.CultureInfo).ToUniversalTime();
@@ -175,6 +181,7 @@ public class GroupController
             DiscordGroupId = groupId,
             StartOfApprenticeship = dateTimeGroupStart,
             ReminderTime = groupReminderTime,
+            ReminderDayOfWeek = groupDayOfWeek
         };
         return groupName;
     }
@@ -192,11 +199,13 @@ public class GroupController
         var requester = _apprenticeRepository.GetApprenticeByDiscordId(modal.User.Id.ToString());
         var oldGroup = requester.Group;
         var _ = CreateGroupFromModalWithoutId(modal, out var group);
+        
 
         oldGroup.Name = group.Name;
         oldGroup.DiscordGroupId = group.DiscordGroupId;
         oldGroup.StartOfApprenticeship = group.StartOfApprenticeship.ToUniversalTime();
         oldGroup.ReminderTime = group.ReminderTime.ToUniversalTime();
+        oldGroup.ReminderDayOfWeek = group.ReminderDayOfWeek;
 
         _groupRepository.UpdateGroup(oldGroup);
 
