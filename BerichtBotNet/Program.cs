@@ -38,7 +38,9 @@ class BerichtBotNet
     {
         var serviceProvider = new ServiceCollection()
             .AddDbContext<BerichtBotContext>(options =>
-                options.UseNpgsql(Environment.GetEnvironmentVariable("PostgreSQLBerichtBotConnection"))) // Replace with your actual connection string
+                options.UseNpgsql(
+                    Environment.GetEnvironmentVariable(
+                        "PostgreSQLBerichtBotConnection"))) // Replace with your actual connection string
             .BuildServiceProvider();
 
         using (var scope = serviceProvider.CreateScope())
@@ -48,7 +50,7 @@ class BerichtBotNet
             // Apply pending migrations
             dbContext.Database.Migrate();
         }
-        
+
         InitializeCommandHandlers();
 
         _cancellationTokenSource = new CancellationTokenSource();
@@ -110,29 +112,8 @@ class BerichtBotNet
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
         {
-            // Define the job and tie it to our ReminderTasks class
-            var reminderJob = JobBuilder.Create<ReminderTasks>()
-                .WithIdentity($"myGroupReminderJob{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
-                .Build();
-
-            reminderJob.JobDataMap.Put("discord", _client);
-            reminderJob.JobDataMap.Put("groupId", group.Id);
-            reminderJob.JobDataMap.Put("groupRepository", _groupRepository);
-            reminderJob.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
-            reminderJob.JobDataMap.Put("logRepository", _logRepository);
-            reminderJob.JobDataMap.Put("weeksRepository", _weeksRepository);
-
-            var reminderTrigger = TriggerBuilder.Create()
-                .WithIdentity($"myGroupReminderTrigger{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}")
-                .StartNow()
-                .WithSchedule(CronScheduleBuilder
-                    .WeeklyOnDayAndHourAndMinute(
-                        DayOfWeek.Wednesday,
-                        group.ReminderTime.ToLocalTime().Hour,
-                        group.ReminderTime.ToLocalTime().Minute))
-                .Build();
-
-            await _scheduler.ScheduleJob(reminderJob, reminderTrigger);
+            ReminderHelper.CreateReminderForGroup(group, _client, _apprenticeRepository, _groupRepository,
+                _logRepository, _weeksRepository, _scheduler);
         }
 
 
