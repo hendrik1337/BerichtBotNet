@@ -4,6 +4,7 @@ using BerichtBotNet.Exceptions;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Repositories;
 using Discord.WebSocket;
+using Quartz;
 using Constants = BerichtBotNet.Helper.Constants;
 
 namespace BerichtBotNet.Discord.Controller;
@@ -12,14 +13,17 @@ public class GroupController
 {
     private readonly GroupRepository _groupRepository;
     private readonly ApprenticeRepository _apprenticeRepository;
-
+    private readonly ReminderHelper _reminderHelper;
+    
     private readonly GroupView _groupView;
     private readonly ApprenticeView _apprenticeView;
 
-    public GroupController(GroupRepository groupRepository, ApprenticeRepository apprenticeRepository)
+    public GroupController(GroupRepository groupRepository, ApprenticeRepository apprenticeRepository, ReminderHelper reminderHelper)
     {
         _groupRepository = groupRepository;
         _apprenticeRepository = apprenticeRepository;
+        _reminderHelper = reminderHelper;
+        
 
         _groupView = new GroupView();
         _apprenticeView = new ApprenticeView();
@@ -183,6 +187,11 @@ public class GroupController
             ReminderTime = groupReminderTime,
             ReminderDayOfWeek = groupDayOfWeek
         };
+        
+        // Update / Create Reminder Schedules
+        _reminderHelper.CreateReminderForGroup(group);
+        
+        
         return groupName;
     }
 

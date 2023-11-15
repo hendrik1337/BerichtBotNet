@@ -20,11 +20,15 @@ class BerichtBotNet
     private DiscordSocketClient _client = null!;
     private IScheduler _scheduler = null!;
     private CancellationTokenSource _cancellationTokenSource;
+    private IHost _builder;
 
     private ApprenticeRepository _apprenticeRepository;
     private GroupRepository _groupRepository;
     private LogRepository _logRepository;
     private SkippedWeeksRepository _weeksRepository;
+
+    private ReminderHelper _reminderHelper;
+    private BerichtsheftService _berichtsheftService;
 
     private BerichtsheftController _berichtsheftController;
     private ApprenticeController _apprenticeController;
@@ -40,7 +44,7 @@ class BerichtBotNet
             .AddDbContext<BerichtBotContext>(options =>
                 options.UseNpgsql(
                     Environment.GetEnvironmentVariable(
-                        "PostgreSQLBerichtBotConnection"))) // Replace with your actual connection string
+                        "PostgreSQLBerichtBotConnection")))
             .BuildServiceProvider();
 
         using (var scope = serviceProvider.CreateScope())
@@ -51,7 +55,7 @@ class BerichtBotNet
             dbContext.Database.Migrate();
         }
 
-        InitializeCommandHandlers();
+        InitializeDependencies();
 
         _cancellationTokenSource = new CancellationTokenSource();
 
@@ -78,18 +82,29 @@ class BerichtBotNet
         await LoadTaskScheduler();
     }
 
-    private void InitializeCommandHandlers()
+
+    private async void InitializeDependencies()
     {
         BerichtBotContext context = new BerichtBotContext();
+        // Load the Task Scheduler
+        _builder = Host.CreateDefaultBuilder()
+            .ConfigureServices((cxt, services) =>
+            {
+                services.AddQuartz(q => { q.UseMicrosoftDependencyInjectionJobFactory(); });
+                services.AddQuartzHostedService(opt => { opt.WaitForJobsToComplete = true; });
+            }).Build();
+        var schedulerFactory = _builder.Services.GetRequiredService<ISchedulerFactory>();
+        _scheduler =  await schedulerFactory.GetScheduler();
+        
         _apprenticeRepository = new ApprenticeRepository(context);
         _groupRepository = new GroupRepository(context);
         _logRepository = new LogRepository(context);
         _weeksRepository = new SkippedWeeksRepository(context);
-
-        _apprenticeController =
-            new ApprenticeController(_apprenticeRepository, _groupRepository, _logRepository, _weeksRepository);
+        _reminderHelper = new ReminderHelper(_client, _apprenticeRepository, _groupRepository, _logRepository, _weeksRepository, _scheduler);
+        _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+        _apprenticeController = new ApprenticeController(_apprenticeRepository, _groupRepository, _berichtsheftService);
         _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
-        _groupController = new GroupController(_groupRepository, _apprenticeRepository);
+        _groupController = new GroupController(_groupRepository, _apprenticeRepository, _reminderHelper);
         _weekController = new WeekController(_apprenticeRepository, _weeksRepository);
         _helpController = new HelpController();
     }
@@ -99,21 +114,12 @@ class BerichtBotNet
         List<Group> groups = _groupRepository.GetAllGroups();
 
         // Load the Task Scheduler
-        var builder = Host.CreateDefaultBuilder()
-            .ConfigureServices((cxt, services) =>
-            {
-                services.AddQuartz(q => { q.UseMicrosoftDependencyInjectionJobFactory(); });
-                services.AddQuartzHostedService(opt => { opt.WaitForJobsToComplete = true; });
-            }).Build();
-
-        var schedulerFactory = builder.Services.GetRequiredService<ISchedulerFactory>();
-        _scheduler = await schedulerFactory.GetScheduler();
+        
 
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
         {
-            ReminderHelper.CreateReminderForGroup(group, _client, _apprenticeRepository, _groupRepository,
-                _logRepository, _weeksRepository, _scheduler);
+            _reminderHelper.CreateReminderForGroup(group);
         }
 
 
@@ -138,7 +144,7 @@ class BerichtBotNet
         await _scheduler.ScheduleJob(updateApprentices, updateApprenticesTrigger);
         await _scheduler.Start();
 
-        await builder.RunAsync();
+        await _builder.RunAsync();
     }
 
     private async Task Client_Ready()
