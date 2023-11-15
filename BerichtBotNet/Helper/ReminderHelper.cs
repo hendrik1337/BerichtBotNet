@@ -34,7 +34,21 @@ public class ReminderHelper
                     group.ReminderTime.ToLocalTime().Hour,
                     group.ReminderTime.ToLocalTime().Minute))
             .Build();
+        
 
         await scheduler.ScheduleJob(reminderJob, reminderTrigger);
+    }
+
+    public static async void RemoveReminderForGroup(Group group, IScheduler scheduler)
+    {
+        // Retrieve the trigger's identity
+        var triggerKey = new TriggerKey($"myGroupReminderTrigger{group.Id.ToString()}", $"groupReminder{group.Id.ToString()}");
+
+        // Check if the trigger exists
+        if (await scheduler.CheckExists(triggerKey))
+        {
+            // Unschedule the job
+            await scheduler.UnscheduleJob(triggerKey);
+        }
     }
 }

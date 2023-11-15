@@ -13,6 +13,7 @@ public class Group
     public string? DiscordGroupId { get; set; }
 
     private DateTime _startOfApprenticeship;
+
     public DateTime StartOfApprenticeship
     {
         get => TimeZoneInfo.ConvertTimeFromUtc(_startOfApprenticeship, TimeZoneInfo.Local);
@@ -21,4 +22,6 @@ public class Group
 
     // Only Hour and Minute of ReminderTime is used. Date is ignored
     public DateTime ReminderTime { get; set; }
+
+    public DayOfWeek ReminderDayOfWeek { get; set; }
 }
