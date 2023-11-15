@@ -1,7 +1,6 @@
 # BerichtBotNet
 
-### Ein Discord-Bot, der in C# entwickelt wurde, um Auszubildende beim Schreiben ihres Berichtshefts in einer bestimmten Woche zu unterstützen.
-Features
+### Ein Discord-Bot, der erinnert, wer diese Woche das Berichtsheft für die Berufsschule / Schulungen schreiben muss.
 
     Erinnerungen: Der Bot sendet automatisch Benachrichtigungen an die registrierten Benutzer, um sie an das Schreiben ihres Berichtshefts zu erinnern.
     Wochenplan: Der Bot berücksichtigt den Wochenplan der Auszubildenden und sendet die Erinnerungen entsprechend.
