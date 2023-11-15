@@ -19,17 +19,15 @@ public class ApprenticeController
     private readonly GroupView _groupView;
 
     public ApprenticeController(ApprenticeRepository apprenticeRepository, GroupRepository groupRepository,
-        LogRepository logRepository, SkippedWeeksRepository weeksRepository)
+        BerichtsheftService berichtsheftService)
     {
         _apprenticeRepository = apprenticeRepository;
         _groupRepository = groupRepository;
-        _logRepository = logRepository;
-        _weeksRepository = weeksRepository;
 
         _apprenticeView = new ApprenticeView();
         _groupView = new GroupView();
 
-        _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+        _berichtsheftService = berichtsheftService;
     }
 
     /// <summary>
