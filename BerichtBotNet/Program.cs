@@ -131,6 +131,7 @@ class BerichtBotNet
         updateApprentices.JobDataMap.Put("groupRepository", _groupRepository);
         updateApprentices.JobDataMap.Put("logRepository", _logRepository);
         updateApprentices.JobDataMap.Put("weeksRepository", _weeksRepository);
+        updateApprentices.JobDataMap.Put("berichtsheftService", _berichtsheftService);
 
 
         var updateApprenticesTrigger = TriggerBuilder.Create()

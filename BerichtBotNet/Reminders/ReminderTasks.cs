@@ -22,11 +22,7 @@ public class ReminderTasks : IJob
         GroupRepository groupRepository = (GroupRepository)(dataMap)["groupRepository"];
         var client = (DiscordSocketClient)dataMap["discord"];
 
-        ApprenticeRepository apprenticeRepository = (ApprenticeRepository)(dataMap)["apprenticeRepository"];
-        LogRepository logRepository = (LogRepository)(dataMap)["logRepository"];
-        SkippedWeeksRepository weeksRepository = (SkippedWeeksRepository)(dataMap)["weeksRepository"];
-
-        BerichtsheftService berichtsheftService = new BerichtsheftService(apprenticeRepository, logRepository, weeksRepository);
+        BerichtsheftService berichtsheftService = (BerichtsheftService)(dataMap)["berichtsheftService"];
 
         var group = groupRepository.GetGroup(groupId);
         if (group is null) return;
