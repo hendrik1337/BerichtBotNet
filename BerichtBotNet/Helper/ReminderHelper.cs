@@ -15,10 +15,11 @@ public class ReminderHelper
     private readonly LogRepository _logRepository;
     private readonly SkippedWeeksRepository _weeksRepository;
     private readonly IScheduler _scheduler;
+    private readonly BerichtsheftService _berichtsheftService;
 
     public ReminderHelper(DiscordSocketClient client, ApprenticeRepository apprenticeRepository,
         GroupRepository groupRepository, LogRepository logRepository, SkippedWeeksRepository weeksRepository,
-        IScheduler scheduler)
+        IScheduler scheduler, BerichtsheftService berichtsheftService)
     {
         _client = client;
         _apprenticeRepository = apprenticeRepository;
@@ -26,6 +27,7 @@ public class ReminderHelper
         _logRepository = logRepository;
         _weeksRepository = weeksRepository;
         _scheduler = scheduler;
+        _berichtsheftService = berichtsheftService;
     }
 
     public async void CreateReminderForGroup(Group group)
@@ -43,6 +45,7 @@ public class ReminderHelper
         reminderJob.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
         reminderJob.JobDataMap.Put("logRepository", _logRepository);
         reminderJob.JobDataMap.Put("weeksRepository", _weeksRepository);
+        reminderJob.JobDataMap.Put("berichtsheftService", _berichtsheftService);
 
         var reminderTrigger = TriggerBuilder.Create()
             .WithIdentity($"myGroupReminderTrigger{group.Name}", $"groupReminder{group.Name}")

@@ -55,13 +55,11 @@ class BerichtBotNet
             dbContext.Database.Migrate();
         }
 
-        InitializeDependencies();
-
         _cancellationTokenSource = new CancellationTokenSource();
 
         _client = new DiscordSocketClient();
 
-        _client.Log += Log;
+        // _client.Log += Log;
 
         _client.SlashCommandExecuted += SlashCommandHandler;
 
@@ -77,8 +75,9 @@ class BerichtBotNet
 
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
-
-
+        
+        InitializeDependencies();
+        
         await LoadTaskScheduler();
     }
 
@@ -100,8 +99,8 @@ class BerichtBotNet
         _groupRepository = new GroupRepository(context);
         _logRepository = new LogRepository(context);
         _weeksRepository = new SkippedWeeksRepository(context);
-        _reminderHelper = new ReminderHelper(_client, _apprenticeRepository, _groupRepository, _logRepository, _weeksRepository, _scheduler);
         _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+        _reminderHelper = new ReminderHelper(_client, _apprenticeRepository, _groupRepository, _logRepository, _weeksRepository, _scheduler, _berichtsheftService);
         _apprenticeController = new ApprenticeController(_apprenticeRepository, _groupRepository, _berichtsheftService);
         _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
         _groupController = new GroupController(_groupRepository, _apprenticeRepository, _reminderHelper);
