@@ -4,7 +4,6 @@ Ein Discord-Bot für die einfache Verwaltung von Berichtsheften in der Berufssch
 
 ## Funktionen
 - Erinnerungen: Automatische Benachrichtigungen für registrierte Benutzer, um das Schreiben ihrer Berichtshefte zu planen.
-- Wochenplan: Berücksichtigt den individuellen Wochenplan der Auszubildenden für zeitlich angepasste Erinnerungen.
 - Konfiguration: Einfache Anpassung von Erinnerungszeit und anderen Einstellungen über intuitive Befehle.
 - Benutzerfreundlichkeit: Unkomplizierte Schnittstelle für die Registrierung, Konfiguration und Abmeldung von Erinnerungen.
 ## Installation
