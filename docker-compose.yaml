@@ -15,7 +15,7 @@ services:
     
   berichtbotnet:
     image: ghcr.io/hendrik1337/berichtbotnet:master
-    restart: "no"
+    restart: unless-stopped
     environment:
       DiscordToken: Your_Discord_Token
       PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=changeMe
