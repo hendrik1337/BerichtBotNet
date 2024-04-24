@@ -7,8 +7,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["BerichtsheftCreator/BerichtsheftCreator.csproj", "BerichtsheftCreator/"]
-RUN dotnet restore "BerichtsheftCreator/BerichtsheftCreator.csproj"
+COPY ["BerichtsheftCreator.csproj", "BerichtsheftCreator/"]
+RUN dotnet restore "BerichtsheftCreator.csproj"
 COPY . .
 WORKDIR "/src/BerichtsheftCreator"
 RUN dotnet build "BerichtsheftCreator.csproj" -c $BUILD_CONFIGURATION -o /app/build
