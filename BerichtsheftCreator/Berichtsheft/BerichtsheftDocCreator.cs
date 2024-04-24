@@ -8,6 +8,7 @@ public class BerichtsheftDocCreator
 {
     public static void CreateBerichtsheft(List<Lesson> lessons, String ausbildungsjahr, String berichtsheftNummer)
     {
+        Console.WriteLine("Creating Word Document");
         string basePath = "/app/Berichtshefte";
         string file = $"{basePath}/Berichtsheft_blank.docx";
 
@@ -84,6 +85,7 @@ public class BerichtsheftDocCreator
 
             Directory.CreateDirectory($"{basePath}/{ausbildungsjahr}");
             doc.SaveAs($"{basePath}/{ausbildungsjahr}/{fileName}");
+            Console.WriteLine("Document created. Beginning Upload");
             BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{ausbildungsjahr}/{fileName}", fileName);
         }
     }

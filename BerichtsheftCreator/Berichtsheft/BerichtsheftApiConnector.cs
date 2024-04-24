@@ -21,6 +21,7 @@ public class BerichtsheftApiConnector
         var jsonResponse = await response.Content.ReadAsStringAsync();
         var data = JsonConvert.DeserializeObject<List<Lesson>>(jsonResponse);
 
+        Console.WriteLine("Lessons loaded");
         return data;
     }
 

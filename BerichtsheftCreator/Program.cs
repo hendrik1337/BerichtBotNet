@@ -20,6 +20,7 @@ app.MapGet("/berichtsheft", async (HttpContext httpcontext) =>
     List<Lesson> lessons = await BerichtsheftApiConnector.GetAsync();
     BerichtsheftDocCreator.CreateBerichtsheft(lessons, ausbildungsjahr.ToString(), berichtsheftNummer.ToString());
 
+    Console.WriteLine($"Berichtsheft for {ausbildungsjahr.ToString()} Created");
     return $"Berichtsheft for {ausbildungsjahr.ToString()} Created";
 });
 app.Run();
