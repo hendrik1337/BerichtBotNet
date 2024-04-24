@@ -1,13 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using BerichtBotNet.Berichtsheft;
-using BerichtBotNet.Data;
-using BerichtBotNet.Discord;
+﻿using BerichtBotNet.Data;
 using BerichtBotNet.Discord.Controller;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Models;
 using BerichtBotNet.Reminders;
 using BerichtBotNet.Repositories;
-using BerichtBotNet.Berichtsheft;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
@@ -79,8 +75,6 @@ class BerichtBotNet
         await _client.StartAsync();
 
         InitializeDependencies();
-        List<Lesson> lessons = await BerichtsheftApiConnector.GetAsync();
-        BerichtsheftDocCreator.CreateBerichtsheft(lessons);
 
         await LoadTaskScheduler();
     }
