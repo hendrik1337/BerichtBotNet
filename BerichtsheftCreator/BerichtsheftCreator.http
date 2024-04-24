@@ -1,0 +1,6 @@
+@BerichtsheftCreator_HostAddress = http://localhost:5201
+
+GET {{BerichtsheftCreator_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

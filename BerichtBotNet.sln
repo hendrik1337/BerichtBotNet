@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BerichtBotNet", "BerichtBot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BerichtBotNet_Tests", "BerichtBotNet_Tests\BerichtBotNet_Tests.csproj", "{DB9939BA-C214-4DFD-883C-E6604E14F74A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BerichtsheftCreator", "BerichtsheftCreator\BerichtsheftCreator.csproj", "{C9B499DF-4D80-47A6-AD76-0513BCFB96B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB9939BA-C214-4DFD-883C-E6604E14F74A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9B499DF-4D80-47A6-AD76-0513BCFB96B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9B499DF-4D80-47A6-AD76-0513BCFB96B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9B499DF-4D80-47A6-AD76-0513BCFB96B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9B499DF-4D80-47A6-AD76-0513BCFB96B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
