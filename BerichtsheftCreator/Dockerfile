@@ -9,15 +9,15 @@ ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 COPY *.csproj .
+COPY . .
+
 RUN dotnet restore
 
-COPY . .
-WORKDIR "/src/BerichtsheftCreator"
-RUN dotnet build "BerichtsheftCreator.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build -c Release --no-restore
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "BerichtsheftCreator.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -c Release -o /app/publish --no-restore 
 
 FROM base AS final
 WORKDIR /app
