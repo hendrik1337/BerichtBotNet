@@ -21,12 +21,25 @@ services:
       PostgreSQLBerichtBotConnection: Host=db;Database=postgres;Username=postgres;Password=changeMe
     depends_on: 
       - db
-
-volumes:
-  db:
-
+  
   berichtsheftcreator:
     image: berichtsheftcreator
     build:
       context: .
       dockerfile: BerichtsheftCreator/Dockerfile
+    environment:
+      crawlerUrl: 
+      nextcloudUrl: 
+      username: 
+      password: 
+      remotePath: 
+    volumes:
+      - C:\Users\Hendrik\Documents\Docker\BerichtBot\Berichtshefte:/app/Berichtshefte
+    ports:
+      - "8002:8080"
+      - "8003:8081"
+
+volumes:
+  db:
+
+  

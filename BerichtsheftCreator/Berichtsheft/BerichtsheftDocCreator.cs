@@ -6,46 +6,85 @@ using Xceed.Words.NET;
 
 public class BerichtsheftDocCreator
 {
-    public static void CreateBerichtsheft(List<Lesson> lessons)
+    public static void CreateBerichtsheft(List<Lesson> lessons, String ausbildungsjahr, String berichtsheftNummer)
     {
-        string file = "C:\\Users\\Hendrik\\RiderProjects\\BerichtBotNet\\Berichtsheft_blank.docx";
+        string basePath = "/app/Berichtshefte";
+        string file = $"{basePath}/Berichtsheft_blank.docx";
+
+        lessons.Sort((x, y) => DateTime.Compare(x.DateTime, y.DateTime));
 
         using (DocX doc = DocX.Load(file))
         {
             Dictionary<String, int> totalHours = new Dictionary<string, int>();
+            List<DateTime> dates = new List<DateTime>();
+
+            var ausbildungsjahrBm = doc.Bookmarks["Ausbildungsjahr"];
+            var berichtsheftNummerBm = doc.Bookmarks["BerichtsheftNr"];
+            ausbildungsjahrBm.SetText(ausbildungsjahr);
+            berichtsheftNummerBm.SetText(berichtsheftNummer);
+
+            int count = 1;
+            String lastDayValue = "";
+
             foreach (var lesson in lessons)
             {
                 String day = BerichtsheftCreationHelper.DateToWeekday(lesson.DateTime);
-                int slot = BerichtsheftCreationHelper.TimeToBerichtheftSlot(lesson.Time.Split("-")[0]);
-                var text = doc.Bookmarks[day + slot];
-                var stunden = doc.Bookmarks[day + "Len" + slot];
+
+                if (!day.Equals(lastDayValue))
+                {
+                    count = 1;
+                    lastDayValue = day;
+                }
+                
+                var text = doc.Bookmarks[day + count];
+                var stunden = doc.Bookmarks[day + "Len" + count];
+                dates.Add(lesson.DateTime);
 
                 if (lesson.NoteText != null)
                 {
-                    text.SetText(lesson.lesson + " " + lesson.NoteText);
-                    if (lesson.NoteText.Equals("Entfall"))
+                    text.SetText(lesson.lesson + ": " + lesson.NoteText);
+                    if (lesson.NoteText.Equals("ENTFÄLLT"))
                     {
                         stunden.SetText("0");
                     }
                     else
                     {
-                        stunden.SetText("2");
+                        stunden.SetText(lesson.Length);
                         int time;
                         totalHours.TryGetValue(day, out time);
-                        time += 2;
+                        time += int.Parse(lesson.Length);
                         totalHours[day] = time;
                     }
                 }
-                
+
+                count++;
             }
-            
+
             foreach (var keyValuePair in totalHours)
             {
                 var totalBm = doc.Bookmarks[keyValuePair.Key + "Total"];
                 totalBm.SetText(keyValuePair.Value.ToString());
             }
-            
-            doc.SaveAs(file + "new.docx");
+
+            var startDate = dates.Min();
+            var endDate = dates.Max();
+
+            var startBm = doc.Bookmarks["start"];
+            var endBm = doc.Bookmarks["end"];
+
+            startBm.SetText(startDate.ToString("dd.MM.yyyy"));
+            endBm.SetText(endDate.ToString("dd.MM.yyyy"));
+
+            String fileName = $"Berichtsheft Schule Woche {berichtsheftNummer}.docx";
+
+            foreach (var docBookmark in doc.Bookmarks)
+            {
+                docBookmark.Remove();
+            }
+
+            Directory.CreateDirectory($"{basePath}/{ausbildungsjahr}");
+            doc.SaveAs($"{basePath}/{ausbildungsjahr}/{fileName}");
+            BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{ausbildungsjahr}/{fileName}", fileName);
         }
     }
 }

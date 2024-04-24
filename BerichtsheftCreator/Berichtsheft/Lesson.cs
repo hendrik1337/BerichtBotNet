@@ -9,6 +9,7 @@ public class Lesson
     public string Time { get; set; }
     public string FormText { get; set; }
     public string? NoteText { get; set; }
+    public string Length { get; set; }
 
     public DateTime DateTime
     {
