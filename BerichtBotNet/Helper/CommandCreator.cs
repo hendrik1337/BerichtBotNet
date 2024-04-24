@@ -19,11 +19,11 @@ public class CommandCreator
 
     public async Task CreateCommands()
     {
-        // await WeekCommands();
-        // await AzubiCommands();
-        // await GroupCommands();
-        // await BerichtsheftCommands();
-        // await HelpCommands();
+        await WeekCommands();
+        await AzubiCommands();
+        await GroupCommands();
+        await BerichtsheftCommands();
+        await HelpCommands();
     }
 
     private async Task AzubiCommands()
