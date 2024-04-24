@@ -44,10 +44,13 @@ public class BerichtsheftController
     {
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
+        var channel = command.Channel;
+
+        await command.RespondAsync("Generiere Berichtsheft...");
 
         string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), requester.Group.Name);
 
-        await command.RespondAsync(response);
+        await channel.SendMessageAsync(response);
     }
 
     private async void SendBerichtsheftLog(SocketSlashCommand command)
