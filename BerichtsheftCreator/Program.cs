@@ -14,6 +14,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("/berichtsheft", async (HttpContext httpcontext) =>
 {
+    Console.WriteLine("Beginning Berichtsheft creation");
     var ausbildungsjahr = httpcontext.Request.Query["ausbildungsjahr"];
     var berichtsheftNummer = httpcontext.Request.Query["berichtsheftNummer"];
     List<Lesson> lessons = await BerichtsheftApiConnector.GetAsync();
