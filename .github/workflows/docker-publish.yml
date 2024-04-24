@@ -19,7 +19,7 @@ env:
 
 jobs:
   build_BerichtBotNet:
-    if: github.event_name != 'pull_request' && contains(github.event.head_commit.modified, 'BerichtBotNet/')
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,7 +94,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   build_BerichtsheftCreator:
-    if: github.event_name != 'pull_request' && contains(github.event.head_commit.modified, 'BerichtsheftCreator/')
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
