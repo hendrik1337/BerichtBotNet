@@ -24,3 +24,9 @@ services:
 
 volumes:
   db:
+
+  berichtsheftcreator:
+    image: berichtsheftcreator
+    build:
+      context: .
+      dockerfile: BerichtsheftCreator/Dockerfile
