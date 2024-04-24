@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using BerichtBotNet.Data;
-using BerichtBotNet.Discord;
+﻿using BerichtBotNet.Data;
 using BerichtBotNet.Discord.Controller;
 using BerichtBotNet.Helper;
 using BerichtBotNet.Models;
@@ -75,9 +73,9 @@ class BerichtBotNet
 
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
-        
+
         InitializeDependencies();
-        
+
         await LoadTaskScheduler();
     }
 
@@ -93,14 +91,15 @@ class BerichtBotNet
                 services.AddQuartzHostedService(opt => { opt.WaitForJobsToComplete = true; });
             }).Build();
         var schedulerFactory = _builder.Services.GetRequiredService<ISchedulerFactory>();
-        _scheduler =  await schedulerFactory.GetScheduler();
-        
+        _scheduler = await schedulerFactory.GetScheduler();
+
         _apprenticeRepository = new ApprenticeRepository(context);
         _groupRepository = new GroupRepository(context);
         _logRepository = new LogRepository(context);
         _weeksRepository = new SkippedWeeksRepository(context);
         _berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
-        _reminderHelper = new ReminderHelper(_client, _apprenticeRepository, _groupRepository, _logRepository, _weeksRepository, _scheduler, _berichtsheftService);
+        _reminderHelper = new ReminderHelper(_client, _apprenticeRepository, _groupRepository, _logRepository,
+            _weeksRepository, _scheduler, _berichtsheftService);
         _apprenticeController = new ApprenticeController(_apprenticeRepository, _groupRepository, _berichtsheftService);
         _berichtsheftController = new BerichtsheftController(_apprenticeRepository, _weeksRepository, _logRepository);
         _groupController = new GroupController(_groupRepository, _apprenticeRepository, _reminderHelper);
@@ -113,7 +112,7 @@ class BerichtBotNet
         List<Group> groups = _groupRepository.GetAllGroups();
 
         // Load the Task Scheduler
-        
+
 
         // Create Custom Reminder Job for every group
         foreach (var group in groups)
