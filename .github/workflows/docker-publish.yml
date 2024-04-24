@@ -16,12 +16,10 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build_BerichtBotNet:
-
+    if: github.event_name != 'pull_request' && contains(github.event.head_commit.modified, 'BerichtBotNet/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,6 +27,9 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
+    env:
+      # github.repository as <account>/<repo>
+      IMAGE_NAME: hendrik1337/berichtbotnet
 
     steps:
       - name: Checkout repository
@@ -37,7 +38,6 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3.3.0
         with:
           cosign-release: 'v2.2.2' # optional
@@ -51,7 +51,6 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -95,7 +94,7 @@ jobs:
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   build_BerichtsheftCreator:
-
+    if: github.event_name != 'pull_request' && contains(github.event.head_commit.modified, 'BerichtsheftCreator/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -103,6 +102,9 @@ jobs:
       # This is used to complete the identity challenge
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
+    env:
+      # github.repository as <account>/<repo>
+      IMAGE_NAME: hendrik1337/BerichtsheftCreator
 
     steps:
       - name: Checkout repository
@@ -111,7 +113,6 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3.3.0
         with:
           cosign-release: 'v2.2.2' # optional
@@ -125,7 +126,6 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ env.REGISTRY }}
