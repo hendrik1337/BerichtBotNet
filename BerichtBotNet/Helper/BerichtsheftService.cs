@@ -3,6 +3,7 @@ using BerichtBotNet.Exceptions;
 using BerichtBotNet.Models;
 using BerichtBotNet.Repositories;
 using Discord;
+using Newtonsoft.Json;
 
 namespace BerichtBotNet.Helper;
 
@@ -11,6 +12,11 @@ public class BerichtsheftService
     private readonly ApprenticeRepository _apprenticeRepository;
     private readonly LogRepository _logRepository;
     private readonly SkippedWeeksRepository _weeksRepository;
+
+    private static HttpClient _sharedClient = new()
+    {
+        BaseAddress = new Uri(Environment.GetEnvironmentVariable("berichtsheftGeneratorUrl")),
+    };
 
     public BerichtsheftService(ApprenticeRepository apprenticeRepository, LogRepository logRepository,
         SkippedWeeksRepository weeksRepository)
@@ -212,5 +218,18 @@ public class BerichtsheftService
         }
 
         throw new BerichtsheftNotFound();
+    }
+
+    public static async Task<String> GenerateBerichtsheft(string berichtsheftnummer, string ausbildungsjahr)
+    {
+        using HttpResponseMessage response =
+            await _sharedClient.GetAsync(
+                $"/berichtsheft?ausbildungsjahr={ausbildungsjahr}&berichtsheftNummer={berichtsheftnummer}");
+
+        response.EnsureSuccessStatusCode();
+
+        var answer = await response.Content.ReadAsStringAsync();
+
+        return answer.ToString();
     }
 }
