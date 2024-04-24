@@ -1,3 +1,6 @@
+using BerichtsheftCreator.Berichtsheft;
+using BerichtsheftCreator.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -36,6 +39,15 @@ app.MapGet("/weatherforecast", () =>
     .WithName("GetWeatherForecast")
     .WithOpenApi();
 
+app.MapGet("/berichtsheft", async () =>
+{
+    List<Lesson> lessons = await BerichtsheftApiConnector.GetAsync();
+    foreach (var lesson in lessons)
+    {
+        Console.WriteLine(lesson.lesson);
+    }
+    BerichtsheftDocCreator.CreateBerichtsheft(lessons);
+});
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
