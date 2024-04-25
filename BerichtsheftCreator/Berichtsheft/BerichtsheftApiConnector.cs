@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using BerichtsheftCreator.Data;
 using Newtonsoft.Json;
 
@@ -45,18 +46,22 @@ public class BerichtsheftApiConnector
                 {
                     // Upload file
                     var content = new StreamContent(fileStream);
-                    // Create folder
-                    var folderResponse = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}", null);
-                    if (folderResponse.IsSuccessStatusCode || folderResponse.StatusCode == System.Net.HttpStatusCode.Created)
-                    {
-                        Console.WriteLine("Folder created successfully.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Folder creation failed: {folderResponse.StatusCode}");
-                        return;
-                    }
+
+
+                    string folder = $"{nextcloudUrl}{remotePath}/{groupName}";
+                    HttpWebRequest httpMkColRequest = (HttpWebRequest)WebRequest.Create(folder);
+                    httpMkColRequest.Credentials = new NetworkCredential(username, password);
+                    httpMkColRequest.PreAuthenticate = true;
+
+                    httpMkColRequest.Method = @"MKCOL";
+
+                    HttpWebResponse httpMkColResponse = (HttpWebResponse)httpMkColRequest.GetResponse();
+
+                    Console.WriteLine(@"MKCOL Response: {0}", httpMkColResponse.StatusDescription);
+
+
                     var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}/{fileName}", content);
+                    Console.WriteLine($"Uploading to: {nextcloudUrl}{remotePath}/{groupName}/{fileName}");
 
                     if (response.IsSuccessStatusCode)
                     {
