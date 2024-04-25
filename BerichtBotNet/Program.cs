@@ -141,6 +141,27 @@ class BerichtBotNet
 
 
         await _scheduler.ScheduleJob(updateApprentices, updateApprenticesTrigger);
+        
+        
+        var createBerichtsheft = JobBuilder.Create<UpdateCurrentApprenticeTask>()
+            .WithIdentity("createBerichtsheft", "group3")
+            .Build();
+
+        createBerichtsheft.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
+
+
+
+        var createBerichtsheftTrigger = TriggerBuilder.Create()
+            .WithIdentity("myTrigger3", "group3")
+            .StartNow()
+            .WithSchedule(CronScheduleBuilder
+                .WeeklyOnDayAndHourAndMinute(DayOfWeek.Saturday, 8, 0))
+            .Build();
+
+
+        await _scheduler.ScheduleJob(createBerichtsheft, createBerichtsheftTrigger);
+        
+        
         await _scheduler.Start();
 
         await _builder.RunAsync();
