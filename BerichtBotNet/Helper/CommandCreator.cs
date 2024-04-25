@@ -19,11 +19,11 @@ public class CommandCreator
 
     public async Task CreateCommands()
     {
-        // await WeekCommands();
-        // await AzubiCommands();
-        // await GroupCommands();
-        // await BerichtsheftCommands();
-        // await HelpCommands();
+        await WeekCommands();
+        await AzubiCommands();
+        await GroupCommands();
+        await BerichtsheftCommands();
+        await HelpCommands();
     }
 
     private async Task AzubiCommands()
@@ -111,6 +111,11 @@ public class CommandCreator
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .AddOption("anzahl", ApplicationCommandOptionType.Integer,
                     "Wie viele Logs sollen angezeigt werden (default=10)", isRequired: false)
+                .WithRequired(false))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("generieren")
+                .WithDescription("Generiert ein Berichtsheft für die aktuelle Woche")
+                .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithRequired(false));
 
         try

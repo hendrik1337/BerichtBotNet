@@ -13,6 +13,7 @@ public class BerichtsheftApiConnector
 
     public static async Task<List<Lesson>?> GetAsync()
     {
+        Console.WriteLine($"Loading lessons from {Environment.GetEnvironmentVariable("crawlerUrl")}");
         using HttpResponseMessage response = await _sharedClient.GetAsync("");
 
         response.EnsureSuccessStatusCode();
@@ -20,6 +21,7 @@ public class BerichtsheftApiConnector
         var jsonResponse = await response.Content.ReadAsStringAsync();
         var data = JsonConvert.DeserializeObject<List<Lesson>>(jsonResponse);
 
+        Console.WriteLine("Lessons loaded");
         return data;
     }
 
