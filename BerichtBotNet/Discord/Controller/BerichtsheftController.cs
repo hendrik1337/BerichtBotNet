@@ -46,7 +46,7 @@ public class BerichtsheftController
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
         var channel = command.Channel;
 
-        await command.RespondAsync("Generiere Berichtsheft...");
+        await command.RespondAsync("Generiere Berichtsheft... Dies dauert ein paar Minuten.");
 
         string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), requester.Group.Name);
 

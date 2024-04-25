@@ -22,14 +22,14 @@ public class CreateBerichtsheftTask : IJob
         string response =
             await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), group.Name);
         Console.WriteLine(response);
-        await SendReminder(group, client);
+        await SendReminder(group, client, berichtsheftNumber.ToString());
     }
 
-    private async Task SendReminder(Group group, DiscordSocketClient client)
+    private async Task SendReminder(Group group, DiscordSocketClient client, string berichtsheftNumber)
     {
         string berichtsheftServerUrl = Environment.GetEnvironmentVariable("berichtsheftServerUrl");
         var channel = await client.GetChannelAsync(ulong.Parse(group.DiscordGroupId)) as IMessageChannel;
-        await channel!.SendMessageAsync($"Das Berichtsheft wurde erstellt und ist verfügbar unter:" +
+        await channel!.SendMessageAsync($"Das Berichtsheft Nr: {berichtsheftNumber} wurde erstellt und ist verfügbar unter:" +
                                         $" {berichtsheftServerUrl} ");
     }
 }
