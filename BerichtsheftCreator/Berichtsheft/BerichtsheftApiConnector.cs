@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using BerichtsheftCreator.Data;
 using Newtonsoft.Json;
 
@@ -25,14 +26,14 @@ public class BerichtsheftApiConnector
         return data;
     }
 
-    public static async void UploadBerichtsheft(String filePath, String fileName)
+    public static async void UploadBerichtsheft(String filePath, String fileName, String groupName)
     {
         {
             string nextcloudUrl = Environment.GetEnvironmentVariable("nextcloudUrl");
             string username = Environment.GetEnvironmentVariable("username");
             string password = Environment.GetEnvironmentVariable("password");
             string remotePath = Environment.GetEnvironmentVariable("remotePath");
-            
+
 
             using (HttpClient client = new HttpClient())
             {
@@ -45,7 +46,22 @@ public class BerichtsheftApiConnector
                 {
                     // Upload file
                     var content = new StreamContent(fileStream);
-                    var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{fileName}", content);
+
+
+                    string folder = $"{nextcloudUrl}{remotePath}/{groupName}";
+                    HttpWebRequest httpMkColRequest = (HttpWebRequest)WebRequest.Create(folder);
+                    httpMkColRequest.Credentials = new NetworkCredential(username, password);
+                    httpMkColRequest.PreAuthenticate = true;
+
+                    httpMkColRequest.Method = @"MKCOL";
+
+                    HttpWebResponse httpMkColResponse = (HttpWebResponse)httpMkColRequest.GetResponse();
+
+                    Console.WriteLine(@"MKCOL Response: {0}", httpMkColResponse.StatusDescription);
+
+
+                    var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}/{fileName}", content);
+                    Console.WriteLine($"Uploading to: {nextcloudUrl}{remotePath}/{groupName}/{fileName}");
 
                     if (response.IsSuccessStatusCode)
                     {

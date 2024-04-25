@@ -118,6 +118,7 @@ class BerichtBotNet
         foreach (var group in groups)
         {
             _reminderHelper.CreateReminderForGroup(group);
+            _reminderHelper.CreateBerichtsheftCreatorTask(group);
         }
 
 
@@ -141,6 +142,7 @@ class BerichtBotNet
 
 
         await _scheduler.ScheduleJob(updateApprentices, updateApprenticesTrigger);
+        
         await _scheduler.Start();
 
         await _builder.RunAsync();

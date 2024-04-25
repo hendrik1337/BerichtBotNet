@@ -23,4 +23,10 @@ app.MapGet("/berichtsheft", async (HttpContext httpcontext) =>
     Console.WriteLine($"Berichtsheft for {ausbildungsjahr.ToString()} Created");
     return $"Berichtsheft for {ausbildungsjahr.ToString()} Created";
 });
+
+app.MapGet("/test", () =>
+{
+    BerichtsheftApiConnector.UploadBerichtsheft("C:\\Users\\Hendrik\\Desktop\\hello.txt", "hello.txt", "Test1337");
+    return "Great Success";
+});
 app.Run();

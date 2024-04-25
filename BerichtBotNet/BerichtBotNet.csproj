@@ -27,8 +27,4 @@
       <PackageReference Include="Quartz.Extensions.Hosting" Version="3.6.3" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Berichtsheft\" />
-    </ItemGroup>
-
 </Project>

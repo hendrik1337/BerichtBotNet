@@ -47,7 +47,7 @@ public class BerichtsheftController
         string berichtsheftServerUrl = Environment.GetEnvironmentVariable("berichtsheftServerUrl");
         var channel = command.Channel;
 
-        await command.RespondAsync("Generiere Berichtsheft...");
+        await command.RespondAsync("Generiere Berichtsheft... Dies dauert ein paar Minuten.");
 
         string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), requester.Group.Name);
 
