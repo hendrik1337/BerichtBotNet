@@ -30,6 +30,30 @@ public class ReminderHelper
         _berichtsheftService = berichtsheftService;
     }
 
+    public async void CreateBerichtsheftCreatorTask(Group group)
+    {
+        var createBerichtsheft = JobBuilder.Create<CreateBerichtsheftTask>()
+            .WithIdentity($"createBerichtsheft{group.Name}", $"group3{group.Name}")
+            .Build();
+
+        createBerichtsheft.JobDataMap.Put("apprenticeRepository", _apprenticeRepository);
+        createBerichtsheft.JobDataMap.Put("discord", _client);
+        createBerichtsheft.JobDataMap.Put("group", group);
+
+
+        var createBerichtsheftTrigger = TriggerBuilder.Create()
+            .WithIdentity($"myTrigger3{group.Name}", $"group3{group.Name}")
+            .StartNow()
+            .WithSchedule(CronScheduleBuilder
+                .WeeklyOnDayAndHourAndMinute(DayOfWeek.Saturday, 8, 0))
+            .Build();
+
+        Console.WriteLine($"Created Auto Berichtsheft Generation Task for {group.Name}");
+
+
+        await _scheduler.ScheduleJob(createBerichtsheft, createBerichtsheftTrigger);
+    }
+
     public async void CreateReminderForGroup(Group group)
     {
         Console.WriteLine("Creating Reminder");
