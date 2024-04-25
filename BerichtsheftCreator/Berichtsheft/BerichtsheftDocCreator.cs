@@ -36,7 +36,7 @@ public class BerichtsheftDocCreator
                     count = 1;
                     lastDayValue = day;
                 }
-                
+
                 var text = doc.Bookmarks[day + count];
                 var stunden = doc.Bookmarks[day + "Len" + count];
                 dates.Add(lesson.DateTime);
@@ -86,7 +86,8 @@ public class BerichtsheftDocCreator
             Directory.CreateDirectory($"{basePath}/{ausbildungsjahr}");
             doc.SaveAs($"{basePath}/{ausbildungsjahr}/{fileName}");
             Console.WriteLine("Document created. Beginning Upload");
-            BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{ausbildungsjahr}/{fileName}", fileName);
+            BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{ausbildungsjahr}/{fileName}", fileName,
+                ausbildungsjahr);
         }
     }
 }

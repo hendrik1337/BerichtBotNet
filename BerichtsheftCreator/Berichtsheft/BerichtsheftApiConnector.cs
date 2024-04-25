@@ -25,14 +25,14 @@ public class BerichtsheftApiConnector
         return data;
     }
 
-    public static async void UploadBerichtsheft(String filePath, String fileName)
+    public static async void UploadBerichtsheft(String filePath, String fileName, String groupName)
     {
         {
             string nextcloudUrl = Environment.GetEnvironmentVariable("nextcloudUrl");
             string username = Environment.GetEnvironmentVariable("username");
             string password = Environment.GetEnvironmentVariable("password");
             string remotePath = Environment.GetEnvironmentVariable("remotePath");
-            
+
 
             using (HttpClient client = new HttpClient())
             {
@@ -45,7 +45,18 @@ public class BerichtsheftApiConnector
                 {
                     // Upload file
                     var content = new StreamContent(fileStream);
-                    var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{fileName}", content);
+                    // Create folder
+                    var folderResponse = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}", null);
+                    if (folderResponse.IsSuccessStatusCode || folderResponse.StatusCode == System.Net.HttpStatusCode.Created)
+                    {
+                        Console.WriteLine("Folder created successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Folder creation failed: {folderResponse.StatusCode}");
+                        return;
+                    }
+                    var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}/{fileName}", content);
 
                     if (response.IsSuccessStatusCode)
                     {
