@@ -47,17 +47,25 @@ public class BerichtsheftApiConnector
                     // Upload file
                     var content = new StreamContent(fileStream);
 
+                    try
+                    {
+                        string folder = $"{nextcloudUrl}{remotePath}/{groupName}";
+                        HttpWebRequest httpMkColRequest = (HttpWebRequest)WebRequest.Create(folder);
+                        httpMkColRequest.Credentials = new NetworkCredential(username, password);
+                        httpMkColRequest.PreAuthenticate = true;
 
-                    string folder = $"{nextcloudUrl}{remotePath}/{groupName}";
-                    HttpWebRequest httpMkColRequest = (HttpWebRequest)WebRequest.Create(folder);
-                    httpMkColRequest.Credentials = new NetworkCredential(username, password);
-                    httpMkColRequest.PreAuthenticate = true;
+                        httpMkColRequest.Method = @"MKCOL";
 
-                    httpMkColRequest.Method = @"MKCOL";
+                        HttpWebResponse httpMkColResponse = (HttpWebResponse)httpMkColRequest.GetResponse();
 
-                    HttpWebResponse httpMkColResponse = (HttpWebResponse)httpMkColRequest.GetResponse();
+                        Console.WriteLine(@"MKCOL Response: {0}", httpMkColResponse.StatusDescription);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
 
-                    Console.WriteLine(@"MKCOL Response: {0}", httpMkColResponse.StatusDescription);
+                    
 
 
                     var response = await client.PutAsync($"{nextcloudUrl}{remotePath}/{groupName}/{fileName}", content);
