@@ -43,13 +43,15 @@ public class BerichtsheftDocCreator
 
                 if (lesson.NoteText != null)
                 {
-                    text.SetText(lesson.lesson + ": " + lesson.NoteText);
+                    
                     if (lesson.NoteText.Equals("ENTFÄLLT"))
                     {
+                        text.SetText(lesson.lesson + ": Entfall");
                         stunden.SetText("0");
                     }
                     else
                     {
+                        text.SetText(lesson.lesson + ": " + lesson.NoteText);
                         stunden.SetText(lesson.Length);
                         int time;
                         totalHours.TryGetValue(day, out time);
