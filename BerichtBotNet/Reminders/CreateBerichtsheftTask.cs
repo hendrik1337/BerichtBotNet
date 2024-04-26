@@ -16,11 +16,12 @@ public class CreateBerichtsheftTask : IJob
 
         var client = (DiscordSocketClient)dataMap["discord"];
         var group = (Group)dataMap["group"];
-        
+
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(group.StartOfApprenticeship, DateTime.Now);
+        string ausbildungsjahr = WeekHelper.GetAusbildungsjahr(group.StartOfApprenticeship);
 
         string response =
-            await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), group.Name);
+            await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), group.Name, ausbildungsjahr);
         Console.WriteLine(response);
         await SendReminder(group, client, berichtsheftNumber.ToString());
     }
@@ -29,7 +30,8 @@ public class CreateBerichtsheftTask : IJob
     {
         string berichtsheftServerUrl = Environment.GetEnvironmentVariable("berichtsheftServerUrl");
         var channel = await client.GetChannelAsync(ulong.Parse(group.DiscordGroupId)) as IMessageChannel;
-        await channel!.SendMessageAsync($"Das Berichtsheft Nr: {berichtsheftNumber} wurde erstellt und ist verfügbar unter:" +
-                                        $" {berichtsheftServerUrl} ");
+        await channel!.SendMessageAsync(
+            $"Das Berichtsheft Nr: {berichtsheftNumber} wurde erstellt und ist verfügbar unter:" +
+            $" {berichtsheftServerUrl} ");
     }
 }

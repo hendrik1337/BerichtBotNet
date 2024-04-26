@@ -17,16 +17,11 @@ app.MapGet("/berichtsheft", async (HttpContext httpcontext) =>
     Console.WriteLine("Beginning Berichtsheft creation");
     var ausbildungsjahr = httpcontext.Request.Query["ausbildungsjahr"];
     var berichtsheftNummer = httpcontext.Request.Query["berichtsheftNummer"];
+    var groupName = httpcontext.Request.Query["groupName"];
     List<Lesson> lessons = await BerichtsheftApiConnector.GetAsync();
-    BerichtsheftDocCreator.CreateBerichtsheft(lessons, ausbildungsjahr.ToString(), berichtsheftNummer.ToString());
+    BerichtsheftDocCreator.CreateBerichtsheft(lessons, ausbildungsjahr.ToString(), berichtsheftNummer.ToString(), groupName);
 
     Console.WriteLine($"Berichtsheft for {ausbildungsjahr.ToString()} Created");
     return $"Berichtsheft for {ausbildungsjahr.ToString()} Created";
-});
-
-app.MapGet("/test", () =>
-{
-    BerichtsheftApiConnector.UploadBerichtsheft("C:\\Users\\Hendrik\\Desktop\\hello.txt", "hello.txt", "Test1337");
-    return "Great Success";
 });
 app.Run();

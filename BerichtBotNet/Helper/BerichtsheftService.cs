@@ -220,11 +220,11 @@ public class BerichtsheftService
         throw new BerichtsheftNotFound();
     }
 
-    public static async Task<String> GenerateBerichtsheft(string berichtsheftnummer, string ausbildungsjahr)
+    public static async Task<String> GenerateBerichtsheft(string berichtsheftnummer, string ausbildungsjahr, string groupName)
     {
         using HttpResponseMessage response =
             await _sharedClient.GetAsync(
-                $"/berichtsheft?ausbildungsjahr={ausbildungsjahr}&berichtsheftNummer={berichtsheftnummer}");
+                $"/berichtsheft?ausbildungsjahr={ausbildungsjahr}&berichtsheftNummer={berichtsheftnummer}&groupName={groupName}");
 
         response.EnsureSuccessStatusCode();
 

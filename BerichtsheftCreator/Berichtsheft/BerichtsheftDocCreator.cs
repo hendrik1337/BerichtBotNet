@@ -6,7 +6,7 @@ using Xceed.Words.NET;
 
 public class BerichtsheftDocCreator
 {
-    public static void CreateBerichtsheft(List<Lesson> lessons, String ausbildungsjahr, String berichtsheftNummer)
+    public static void CreateBerichtsheft(List<Lesson> lessons, String ausbildungsjahr, String berichtsheftNummer, String groupName)
     {
         Console.WriteLine("Creating Word Document");
         string basePath = "/app/Berichtshefte";
@@ -85,10 +85,10 @@ public class BerichtsheftDocCreator
                 docBookmark.Remove();
             }
 
-            Directory.CreateDirectory($"{basePath}/{ausbildungsjahr}");
-            doc.SaveAs($"{basePath}/{ausbildungsjahr}/{fileName}");
+            Directory.CreateDirectory($"{basePath}/{groupName}");
+            doc.SaveAs($"{basePath}/{groupName}/{fileName}");
             Console.WriteLine("Document created. Beginning Upload");
-            BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{ausbildungsjahr}/{fileName}", fileName,
+            BerichtsheftApiConnector.UploadBerichtsheft($"{basePath}/{groupName}/{fileName}", fileName,
                 ausbildungsjahr);
         }
     }

@@ -18,7 +18,8 @@ public class WeekHelper
 
     public static string DateTimeToCalendarWeekYearCombination(DateTime date)
     {
-        return "KW " + ISOWeek.GetWeekOfYear(date) + " " + ISOWeek.GetYear(date);;
+        return "KW " + ISOWeek.GetWeekOfYear(date) + " " + ISOWeek.GetYear(date);
+        ;
     }
 
     public static int GetBerichtsheftNumber(DateTime ausbildungsStart, DateTime currentDate)
@@ -27,15 +28,14 @@ public class WeekHelper
         {
             currentDate = currentDate.AddDays(-6);
         }
-        
+
         // Setzt beide Tage auf Montag und entfernt die Uhrzeit, um nur die Wochen zu unterscheiden
         currentDate = currentDate.Date.AddDays(-(int)currentDate.DayOfWeek + 1);
         ausbildungsStart = ausbildungsStart.Date.AddDays(-(int)ausbildungsStart.DayOfWeek + 1);
-        
-        
+
 
         TimeSpan duration = currentDate.Subtract(ausbildungsStart);
-        
+
         // + 1, weil die Nummerierung bei 1 und nicht bei 0 beginnt
         return (int)Math.Ceiling(duration.TotalDays / 7) + 1;
     }
@@ -63,7 +63,7 @@ public class WeekHelper
                 throw new InvalidWeekDayInputException();
         }
     }
-    
+
     public static string ParseDayOfWeekIntoString(DayOfWeek day)
     {
         switch (day)
@@ -85,5 +85,18 @@ public class WeekHelper
             default:
                 throw new ArgumentException("Invalid DayOfWeek value.");
         }
+    }
+
+    public static string GetAusbildungsjahr(DateTime ausbildungsstart)
+    {
+        DateTime zeroTime = new DateTime(1, 1, 1);
+
+        DateTime currentDate = DateTime.Today;
+
+        TimeSpan span = currentDate - ausbildungsstart;
+
+        int years = (zeroTime + span).Year;
+
+        return years.ToString();
     }
 }

@@ -45,11 +45,13 @@ public class BerichtsheftController
         Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
         string berichtsheftServerUrl = Environment.GetEnvironmentVariable("berichtsheftServerUrl");
+        string ausbildungsjahr = WeekHelper.GetAusbildungsjahr(requester.Group.StartOfApprenticeship);
         var channel = command.Channel;
 
         await command.RespondAsync("Generiere Berichtsheft... Dies dauert ein paar Minuten.");
 
-        string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), requester.Group.Name);
+        string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(),
+            requester.Group.Name, ausbildungsjahr);
 
         await channel.SendMessageAsync($"{response}\nVerfügbar unter: {berichtsheftServerUrl}");
     }
@@ -69,7 +71,6 @@ public class BerichtsheftController
         }
         catch (InvalidOperationException ignored)
         {
-            
         }
 
         var logs = _logRepository.GetLogsOfGroup(requester.Group.Id, limit);
@@ -79,7 +80,7 @@ public class BerichtsheftController
         if (logs.Count > 0)
         {
             ans += $"Die letzten {logs.Count} Log Einträge:\n\n";
-            
+
             foreach (var log in logs)
             {
                 ans += $"Berichtsheft: {log.BerichtheftNummer} " +
@@ -93,7 +94,6 @@ public class BerichtsheftController
             ans += "Es sind keine Log Einträge vorhanden";
         }
 
-        
 
         await command.RespondAsync(ans);
     }
@@ -108,8 +108,9 @@ public class BerichtsheftController
             return;
         }
 
-        BerichtsheftService berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
-        
+        BerichtsheftService berichtsheftService =
+            new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+
         try
         {
             var value = command.Data.Options.First().Options.First().Value;
@@ -127,8 +128,6 @@ public class BerichtsheftController
         {
             await command.RespondAsync(berichtsheftService.CurrentBerichtsheftWriterMessage(requester.Group, true));
         }
-
-
     }
 
     private static async Task SendBerichtsheftWriterByDate(SocketSlashCommand command, object value,
@@ -181,7 +180,8 @@ public class BerichtsheftController
     {
         Apprentice requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString())!;
 
-        BerichtsheftService berichtsheftService = new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
+        BerichtsheftService berichtsheftService =
+            new BerichtsheftService(_apprenticeRepository, _logRepository, _weeksRepository);
         var berichtsheftWriterOrder = berichtsheftService.BerichtsheftOrder(requester.Group);
 
         string ans = "Die Aktuelle Reihenfolge ist:\n";
