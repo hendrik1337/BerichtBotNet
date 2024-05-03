@@ -29,38 +29,47 @@ public class BerichtsheftDocCreator
 
             foreach (var lesson in lessons)
             {
-                String day = BerichtsheftCreationHelper.DateToWeekday(lesson.DateTime);
-
-                if (!day.Equals(lastDayValue))
+                try
                 {
-                    count = 1;
-                    lastDayValue = day;
-                }
+                    String day = BerichtsheftCreationHelper.DateToWeekday(lesson.DateTime);
 
-                var text = doc.Bookmarks[day + count];
-                var stunden = doc.Bookmarks[day + "Len" + count];
-                dates.Add(lesson.DateTime);
+                    if (!day.Equals(lastDayValue))
+                    {
+                        count = 1;
+                        lastDayValue = day;
+                    }
 
-                if (lesson.NoteText != null)
-                {
+                    var text = doc.Bookmarks[day + count];
+                    var stunden = doc.Bookmarks[day + "Len" + count];
+                    dates.Add(lesson.DateTime);
+
+                    if (lesson.NoteText != null)
+                    {
                     
-                    if (lesson.NoteText.Equals("ENTFÄLLT"))
-                    {
-                        text.SetText(lesson.lesson + ": Entfall");
-                        stunden.SetText("0");
+                        if (lesson.NoteText.Equals("ENTFÄLLT"))
+                        {
+                            text.SetText(lesson.lesson + ": Entfall");
+                            stunden.SetText("0");
+                        }
+                        else
+                        {
+                            text.SetText(lesson.lesson + ": " + lesson.NoteText);
+                            stunden.SetText(lesson.Length);
+                            int time;
+                            totalHours.TryGetValue(day, out time);
+                            time += int.Parse(lesson.Length);
+                            totalHours[day] = time;
+                        }
                     }
-                    else
-                    {
-                        text.SetText(lesson.lesson + ": " + lesson.NoteText);
-                        stunden.SetText(lesson.Length);
-                        int time;
-                        totalHours.TryGetValue(day, out time);
-                        time += int.Parse(lesson.Length);
-                        totalHours[day] = time;
-                    }
-                }
 
-                count++;
+                    count++;
+                }
+                catch (NullReferenceException nullReferenceException)
+                {
+                    Console.WriteLine("Could not set Text");
+                    Console.WriteLine(nullReferenceException.Message);
+                }
+                
             }
 
             foreach (var keyValuePair in totalHours)
