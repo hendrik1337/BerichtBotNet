@@ -2,9 +2,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestProjectMapping/=C9B499DF_002D4D80_002D47A6_002DAD76_002D0513BCFB96B7/@EntryIndexedValue">BerichtsheftCreator.Tests</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/CreateUnitTestDialog/TestTemplateMapping/=NUnit3x/@EntryIndexedValue">db4927dd-2e12-48a7-9a84-2b7e3e31b9c8</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e1159190_002D7c3e_002D4c90_002D98c5_002D1e99f5d5de02/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="CombineEinzelstunden_Test" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::B5F6858A-A1F9-4AD8-B5BE-093E986CC826::net8.0::BerichtsheftCreator.Tests.Berichtsheft.BerichtsheftCreationHelperTest.CombineEinzelstunden_Test&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Project Location="C:\Users\Hendrik\RiderProjects\BerichtBotNet\BerichtBotNet_Tests" Presentation="&amp;lt;BerichtBotNet_Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
 	</wpf:ResourceDictionary>

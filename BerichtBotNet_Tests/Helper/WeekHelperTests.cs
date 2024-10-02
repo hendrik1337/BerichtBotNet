@@ -85,7 +85,7 @@ public class WeekHelperTests
         string expectedYear = "2";
 
         // Act
-        string actualYear = WeekHelper.GetAusbildungsjahr(ausbildungsstart);
+        string actualYear = WeekHelper.GetAusbildungsjahr(ausbildungsstart, "23.10.2023");
 
         // Assert
         Assert.That(actualYear, Is.EqualTo(expectedYear));

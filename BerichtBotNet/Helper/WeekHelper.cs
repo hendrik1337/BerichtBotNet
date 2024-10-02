@@ -87,11 +87,11 @@ public class WeekHelper
         }
     }
 
-    public static string GetAusbildungsjahr(DateTime ausbildungsstart)
+    public static string GetAusbildungsjahr(DateTime ausbildungsstart, string definedCurrentDate = "")
     {
         DateTime zeroTime = new DateTime(1, 1, 1);
 
-        DateTime currentDate = DateTime.Today;
+        DateTime currentDate = definedCurrentDate.Equals("") ? DateTime.Today : DateTime.Parse(definedCurrentDate);
 
         TimeSpan span = currentDate - ausbildungsstart;
 
