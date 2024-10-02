@@ -34,27 +34,9 @@ public class BerichtsheftController
             case "log":
                 SendBerichtsheftLog(command);
                 break;
-            case "generieren":
-                GenerateBerichtsheft(command);
-                break;
         }
     }
-
-    private async void GenerateBerichtsheft(SocketSlashCommand command)
-    {
-        Apprentice? requester = _apprenticeRepository.GetApprenticeByDiscordId(command.User.Id.ToString());
-        int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(requester.Group.StartOfApprenticeship, DateTime.Now);
-        string berichtsheftServerUrl = Environment.GetEnvironmentVariable("berichtsheftServerUrl");
-        string ausbildungsjahr = WeekHelper.GetAusbildungsjahr(requester.Group.StartOfApprenticeship);
-        var channel = command.Channel;
-
-        await command.RespondAsync("Generiere Berichtsheft... Dies dauert ein paar Minuten.");
-
-        string response = await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(),
-            requester.Group.Name, ausbildungsjahr);
-
-        await channel.SendMessageAsync($"{response}\nVerfügbar unter: {berichtsheftServerUrl}");
-    }
+    
 
     private async void SendBerichtsheftLog(SocketSlashCommand command)
     {

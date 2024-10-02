@@ -219,17 +219,4 @@ public class BerichtsheftService
 
         throw new BerichtsheftNotFound();
     }
-
-    public static async Task<String> GenerateBerichtsheft(string berichtsheftnummer, string ausbildungsjahr, string groupName)
-    {
-        using HttpResponseMessage response =
-            await _sharedClient.GetAsync(
-                $"/berichtsheft?ausbildungsjahr={ausbildungsjahr}&berichtsheftNummer={berichtsheftnummer}&groupName={groupName}");
-
-        response.EnsureSuccessStatusCode();
-
-        var answer = await response.Content.ReadAsStringAsync();
-
-        return answer.ToString();
-    }
 }

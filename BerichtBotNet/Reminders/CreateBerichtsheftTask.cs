@@ -18,11 +18,7 @@ public class CreateBerichtsheftTask : IJob
         var group = (Group)dataMap["group"];
 
         int berichtsheftNumber = WeekHelper.GetBerichtsheftNumber(group.StartOfApprenticeship, DateTime.Now);
-        string ausbildungsjahr = WeekHelper.GetAusbildungsjahr(group.StartOfApprenticeship);
-
-        string response =
-            await BerichtsheftService.GenerateBerichtsheft(berichtsheftNumber.ToString(), group.Name, ausbildungsjahr);
-        Console.WriteLine(response);
+        
         await SendReminder(group, client, berichtsheftNumber.ToString());
     }
 
