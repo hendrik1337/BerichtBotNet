@@ -118,7 +118,6 @@ class BerichtBotNet
         foreach (var group in groups)
         {
             _reminderHelper.CreateReminderForGroup(group);
-            _reminderHelper.CreateBerichtsheftCreatorTask(group);
         }
 
 
